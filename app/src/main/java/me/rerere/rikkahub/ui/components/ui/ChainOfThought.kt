@@ -7,6 +7,7 @@
 package me.rerere.rikkahub.ui.components.ui
 
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -54,6 +55,8 @@ import me.rerere.hugeicons.stroke.ArrowUp01
 import me.rerere.hugeicons.stroke.Search01
 import me.rerere.hugeicons.stroke.Sparkles
 import me.rerere.rikkahub.R
+import me.rerere.rikkahub.data.datastore.DisplayMaterialMode
+import me.rerere.rikkahub.ui.theme.LocalMaterialMode
 
 private val LocalCardColor = staticCompositionLocalOf { Color.White }
 
@@ -85,6 +88,15 @@ fun <T> ChainOfThought(
 ) {
     val settings = LocalSettings.current
     val thinkingAlpha = 1f - settings.displaySetting.thinkingChainTransparency / 100f
+    val materialMode = LocalMaterialMode.current
+    val useTranslucentSurface = materialMode == DisplayMaterialMode.TRANSLUCENT ||
+        materialMode == DisplayMaterialMode.GLASS
+    val materialBaseAlpha = when (materialMode) {
+        DisplayMaterialMode.TRANSLUCENT -> TRANSLUCENT_THINKING_BASE_ALPHA
+        DisplayMaterialMode.GLASS -> GLASS_THINKING_BASE_ALPHA
+        DisplayMaterialMode.FOLLOW_THEME,
+        DisplayMaterialMode.FLAT -> 1f
+    }
 
     var expanded by remember { mutableStateOf(false) }
     val canCollapse = steps.size > collapsedVisibleCount
@@ -92,11 +104,18 @@ fun <T> ChainOfThought(
 
     val thinkingBubbleColor = settings.displaySetting.thinkingBubbleColor?.let { it.toComposeColor() }
     val effectiveCardColors = CardDefaults.cardColors(
-        containerColor = (thinkingBubbleColor ?: cardColors.containerColor).copy(alpha = thinkingAlpha),
+        containerColor = (thinkingBubbleColor ?: cardColors.containerColor).copy(
+            alpha = materialBaseAlpha * thinkingAlpha
+        ),
         contentColor = cardColors.contentColor,
         disabledContainerColor = cardColors.disabledContainerColor,
         disabledContentColor = cardColors.disabledContentColor,
     )
+    val border = if (useTranslucentSurface) {
+        BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = THINKING_BORDER_ALPHA))
+    } else {
+        null
+    }
 
     CompositionLocalProvider(
         LocalCardColor provides cardColors.containerColor
@@ -105,6 +124,7 @@ fun <T> ChainOfThought(
             modifier = modifier,
             colors = effectiveCardColors,
             shape = RoundedCornerShape(16.dp),
+            border = border,
         ) {
             Column(
                 modifier = Modifier
@@ -189,6 +209,10 @@ fun <T> ChainOfThought(
         }
     }
 }
+
+private const val TRANSLUCENT_THINKING_BASE_ALPHA = 0.78f
+private const val GLASS_THINKING_BASE_ALPHA = 0.56f
+private const val THINKING_BORDER_ALPHA = 0.18f
 
 /**
  * [ChainOfThought] 内部使用的步骤渲染作用域。

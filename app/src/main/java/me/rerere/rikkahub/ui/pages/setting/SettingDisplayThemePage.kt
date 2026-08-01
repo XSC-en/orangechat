@@ -1,4 +1,4 @@
-﻿/*
+/*
  * 橘瓣 OrangeChat
  * 衍生自 RikkaHub (https://github.com/rikkahub/rikkahub)，原作者 RE
  * 本项目基于 GNU AGPL v3 开源，详见根目录 LICENSE 文件
@@ -14,9 +14,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.LargeFlexibleTopAppBar
+import me.rerere.rikkahub.ui.theme.LargeFlexibleTopAppBar
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -37,8 +38,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import me.rerere.rikkahub.R
 import me.rerere.rikkahub.Screen
 import me.rerere.rikkahub.data.datastore.DisplaySetting
+import me.rerere.rikkahub.data.datastore.DisplayMaterialMode
 import me.rerere.rikkahub.ui.components.nav.BackButton
 import me.rerere.rikkahub.ui.components.ui.CardGroup
+import me.rerere.rikkahub.ui.components.ui.Select
 import me.rerere.rikkahub.ui.context.LocalNavController
 import me.rerere.rikkahub.ui.hooks.rememberAmoledDarkMode
 import me.rerere.rikkahub.ui.pages.setting.components.PresetThemeButtonGroup
@@ -70,7 +73,7 @@ fun SettingDisplayThemePage(vm: SettingVM = koinViewModel()) {
             )
         },
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-        containerColor = CustomColors.topBarColors.containerColor
+        containerColor = settingsScaffoldContainerColor(CustomColors.topBarColors.containerColor)
     ) { contentPadding ->
         LazyColumn(
             modifier = Modifier.fillMaxWidth(),
@@ -105,6 +108,41 @@ fun SettingDisplayThemePage(vm: SettingVM = koinViewModel()) {
                             Switch(
                                 checked = settings.dynamicColor,
                                 onCheckedChange = { vm.updateSettings(settings.copy(dynamicColor = it)) },
+                            )
+                        },
+                        colors = CustomColors.listItemColors,
+                    )
+                    ListItem(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(4.dp)),
+                        headlineContent = { Text("材质模式") },
+                        supportingContent = {
+                            Text(
+                                when (displaySetting.materialMode) {
+                                    DisplayMaterialMode.FOLLOW_THEME -> "跟随主题"
+                                    DisplayMaterialMode.FLAT -> "平面"
+                                    DisplayMaterialMode.TRANSLUCENT -> "轻透"
+                                    DisplayMaterialMode.GLASS -> "玻璃"
+                                }
+                            )
+                        },
+                        trailingContent = {
+                            Select(
+                                options = DisplayMaterialMode.entries,
+                                selectedOption = displaySetting.materialMode,
+                                onOptionSelected = {
+                                    updateDisplaySetting(displaySetting.copy(materialMode = it))
+                                },
+                                optionToString = {
+                                    when (it) {
+                                        DisplayMaterialMode.FOLLOW_THEME -> "跟随主题"
+                                        DisplayMaterialMode.FLAT -> "平面"
+                                        DisplayMaterialMode.TRANSLUCENT -> "轻透"
+                                        DisplayMaterialMode.GLASS -> "玻璃"
+                                    }
+                                },
+                                modifier = Modifier.width(150.dp),
                             )
                         },
                         colors = CustomColors.listItemColors,

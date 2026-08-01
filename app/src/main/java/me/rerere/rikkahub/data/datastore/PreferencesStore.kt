@@ -650,6 +650,18 @@ enum class ChatFontFamily {
 }
 
 @Serializable
+enum class DisplayMaterialMode {
+    @SerialName("follow_theme")
+    FOLLOW_THEME,
+    @SerialName("flat")
+    FLAT,
+    @SerialName("translucent")
+    TRANSLUCENT,
+    @SerialName("glass")
+    GLASS,
+}
+
+@Serializable
 data class DisplaySetting(
     val userAvatar: Avatar = Avatar.Dummy,
     val userNickname: String = "",
@@ -682,12 +694,17 @@ data class DisplaySetting(
     val enableLatexRendering: Boolean = true,
     val enableBlurEffect: Boolean = false,
     val chatFontFamily: ChatFontFamily = ChatFontFamily.DEFAULT,
+    val materialMode: DisplayMaterialMode = DisplayMaterialMode.FOLLOW_THEME,
+    val interfaceSurfaceOpacity: Float = 82f,
+    val popupSurfaceOpacity: Float = 90f,
     val enableVolumeKeyScroll: Boolean = false,
     val volumeKeyScrollRatio: Float = 1.0f,
     val chatBubbleTransparency: Float = 0f,
     val thinkingChainTransparency: Float = 0f,
     // 自定义字体
     val customFontPath: String = "",
+    // 设置页自定义背景
+    val settingsBackgroundPath: String = "",
     // 输入框自定义背景
     val inputBackgroundPath: String = "",
     // 头像框（QQ挂件风格）
@@ -701,6 +718,8 @@ data class DisplaySetting(
     val aiAvatarFrameScale: Float = 1f,
     // 侧边栏背景
     val drawerBackgroundPath: String = "",
+    // 侧边栏根面板不透明度（百分比）
+    val drawerSurfaceOpacity: Float = 100f,
     // 侧边栏元素透明度
     val drawerItemAlpha: Float = 1f,
     // 颜色自定义

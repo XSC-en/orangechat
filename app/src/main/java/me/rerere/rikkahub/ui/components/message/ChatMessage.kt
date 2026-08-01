@@ -17,7 +17,9 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -109,8 +111,10 @@ import me.rerere.rikkahub.ui.context.LocalNavController
 import me.rerere.rikkahub.ui.modifier.shimmer
 import me.rerere.rikkahub.ui.components.ui.toComposeColor
 import me.rerere.rikkahub.ui.context.LocalDisplaySettings
+import me.rerere.rikkahub.ui.theme.LocalMaterialMode
 import me.rerere.rikkahub.ui.theme.extendColors
 import me.rerere.rikkahub.data.datastore.ChatFontFamily
+import me.rerere.rikkahub.data.datastore.DisplayMaterialMode
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.foundation.Image
@@ -725,13 +729,25 @@ private fun BubbleSurface(
     onClick: (() -> Unit)? = null,
     content: @Composable () -> Unit,
 ) {
+    val materialMode = LocalMaterialMode.current
+    val useTranslucentSurface = materialMode == DisplayMaterialMode.TRANSLUCENT ||
+        materialMode == DisplayMaterialMode.GLASS
+    val effectiveAlpha = when (materialMode) {
+        DisplayMaterialMode.TRANSLUCENT -> TRANSLUCENT_BUBBLE_BASE_ALPHA * bubbleAlpha
+        DisplayMaterialMode.GLASS -> GLASS_BUBBLE_BASE_ALPHA * bubbleAlpha
+        DisplayMaterialMode.FOLLOW_THEME,
+        DisplayMaterialMode.FLAT -> bubbleAlpha
+    }
+    val glassBorderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = GLASS_BUBBLE_BORDER_ALPHA)
+    val shape = RoundedCornerShape(cornerRadius)
     val hasImage = imagePath.isNotBlank() && java.io.File(imagePath).exists()
     if (hasImage) {
         Box(
             modifier = Modifier
                 .animateContentSize()
-                .clip(RoundedCornerShape(cornerRadius))
+                .clip(shape)
                 .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier)
+                .then(if (useTranslucentSurface) Modifier.border(1.dp, glassBorderColor, shape) else Modifier)
         ) {
             AsyncImage(
                 model = imagePath,
@@ -743,7 +759,7 @@ private fun BubbleSurface(
                 Box(
                     modifier = Modifier
                         .matchParentSize()
-                        .background(color.copy(alpha = bubbleAlpha))
+                        .background(color.copy(alpha = effectiveAlpha))
                 )
             }
             Column(modifier = Modifier.padding(8.dp)) { content() }
@@ -751,14 +767,19 @@ private fun BubbleSurface(
     } else {
         Surface(
             modifier = Modifier.animateContentSize(),
-            shape = RoundedCornerShape(cornerRadius),
-            color = color.copy(alpha = bubbleAlpha),
+            shape = shape,
+            color = color.copy(alpha = effectiveAlpha),
+            border = if (useTranslucentSurface) BorderStroke(1.dp, glassBorderColor) else null,
             onClick = onClick ?: {},
         ) {
             Column(modifier = Modifier.padding(8.dp)) { content() }
         }
     }
 }
+
+private const val TRANSLUCENT_BUBBLE_BASE_ALPHA = 0.72f
+private const val GLASS_BUBBLE_BASE_ALPHA = 0.46f
+private const val GLASS_BUBBLE_BORDER_ALPHA = 0.18f
  
 @Composable
 @Suppress("UnusedCrossTarget")

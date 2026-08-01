@@ -9,6 +9,7 @@ package me.rerere.rikkahub.ui.pages.chat
 import androidx.activity.ComponentActivity
 import android.graphics.BitmapFactory
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -31,6 +32,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.DrawerDefaults
+import me.rerere.rikkahub.ui.theme.materialModeBorderStroke
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
@@ -85,6 +88,7 @@ import me.rerere.hugeicons.stroke.TransactionHistory
 import me.rerere.hugeicons.stroke.Zap
 import me.rerere.rikkahub.R
 import me.rerere.rikkahub.Screen
+import me.rerere.rikkahub.data.datastore.DisplayMaterialMode
 import me.rerere.rikkahub.data.datastore.Settings
 import me.rerere.rikkahub.data.model.Assistant
 import me.rerere.rikkahub.data.model.Conversation
@@ -176,8 +180,34 @@ fun ChatDrawerContent(
     // Menu popup 状态
     var showMenuPopup by remember { mutableStateOf(false) }
 
+    val drawerSurfaceAlpha =
+        (settings.displaySetting.drawerSurfaceOpacity / 100f).coerceIn(0.6f, 1f)
+    val drawerShape = DrawerDefaults.shape
+    val showDrawerBorder = when (settings.displaySetting.materialMode) {
+        DisplayMaterialMode.TRANSLUCENT,
+        DisplayMaterialMode.GLASS -> true
+
+        DisplayMaterialMode.FLAT,
+        DisplayMaterialMode.FOLLOW_THEME -> false
+    }
+    val drawerModifier = Modifier
+        .width(300.dp)
+        .then(
+            if (showDrawerBorder) {
+                Modifier.border(
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.18f),
+                    shape = drawerShape,
+                )
+            } else {
+                Modifier
+            }
+        )
+
     ModalDrawerSheet(
-        modifier = Modifier.width(300.dp)
+        modifier = drawerModifier,
+        drawerShape = drawerShape,
+        drawerContainerColor = DrawerDefaults.modalContainerColor.copy(alpha = drawerSurfaceAlpha),
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             // 侧边栏背景图（最底层）
@@ -384,7 +414,8 @@ fun ChatDrawerContent(
                     )
                     DropdownMenu(
                         expanded = showMenuPopup,
-                        onDismissRequest = { showMenuPopup = false }
+                        onDismissRequest = { showMenuPopup = false },
+                        border = materialModeBorderStroke(),
                     ) {
                         DropdownMenuItem(
                             text = { Text(stringResource(R.string.chat_page_menu_ai_translator)) },
@@ -868,6 +899,7 @@ private fun FolderBar(
                 DropdownMenu(
                     expanded = menuExpanded,
                     onDismissRequest = { menuExpanded = false },
+                    border = materialModeBorderStroke(),
                 ) {
                     DropdownMenuItem(
                         text = { Text(stringResource(R.string.chat_page_rename)) },
