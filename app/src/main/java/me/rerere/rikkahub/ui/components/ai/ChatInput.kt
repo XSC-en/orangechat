@@ -71,7 +71,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
@@ -511,6 +514,48 @@ fun ChatInput(
     } else {
         null
     }
+    val useStaticGlass = materialMode == DisplayMaterialMode.GLASS &&
+        inputBgBitmap == null && !settings.displaySetting.enableBlurEffect
+    val glassSurfaceTint = MaterialTheme.colorScheme.surface
+    val glassHighlight = MaterialTheme.colorScheme.onSurface
+    val staticGlassModifier = if (useStaticGlass) {
+        Modifier.drawWithCache {
+            val topLayerHeight = minOf(size.height * 0.32f, 32.dp.toPx())
+            val highlightInset = 20.dp.toPx()
+            val highlightY = 0.75.dp.toPx()
+
+            onDrawBehind {
+                drawRect(
+                    brush = Brush.linearGradient(
+                        colors = listOf(
+                            glassSurfaceTint.copy(alpha = 0.07f),
+                            glassSurfaceTint.copy(alpha = 0.025f),
+                            Color.Transparent,
+                        ),
+                        start = Offset.Zero,
+                        end = Offset(size.width * 0.62f, topLayerHeight),
+                    )
+                )
+                drawRect(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            glassHighlight.copy(alpha = 0.04f),
+                            Color.Transparent,
+                        ),
+                        endY = topLayerHeight,
+                    )
+                )
+                drawLine(
+                    color = glassHighlight.copy(alpha = 0.14f),
+                    start = Offset(highlightInset, highlightY),
+                    end = Offset(size.width - highlightInset, highlightY),
+                    strokeWidth = 0.75.dp.toPx(),
+                )
+            }
+        }
+    } else {
+        Modifier
+    }
 
     Surface(
         color = Color.Transparent,
@@ -540,7 +585,7 @@ fun ChatInput(
                 border = inputContainerBorder,
             ) {
                 // Use Box so background image can match parent size
-                Box {
+                Box(modifier = staticGlassModifier) {
                     // Background image inside input area (matches content size exactly)
                     if (inputBgBitmap != null) {
                         Image(

@@ -56,8 +56,11 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
@@ -730,24 +733,129 @@ private fun BubbleSurface(
     content: @Composable () -> Unit,
 ) {
     val materialMode = LocalMaterialMode.current
-    val useTranslucentSurface = materialMode == DisplayMaterialMode.TRANSLUCENT ||
-        materialMode == DisplayMaterialMode.GLASS
     val effectiveAlpha = when (materialMode) {
         DisplayMaterialMode.TRANSLUCENT -> TRANSLUCENT_BUBBLE_BASE_ALPHA * bubbleAlpha
-        DisplayMaterialMode.GLASS -> GLASS_BUBBLE_BASE_ALPHA * bubbleAlpha
+        DisplayMaterialMode.GLASS -> bubbleAlpha
         DisplayMaterialMode.FOLLOW_THEME,
         DisplayMaterialMode.FLAT -> bubbleAlpha
     }
     val glassBorderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = GLASS_BUBBLE_BORDER_ALPHA)
+    val translucentBorderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = TRANSLUCENT_BUBBLE_BORDER_ALPHA)
+    val glassFillModifier = Modifier.drawWithCache {
+        val gradientCenter = Offset(size.width / 2f, size.height / 2f)
+        val glassFillBrush = Brush.radialGradient(
+            colorStops = arrayOf(
+                0f to color.copy(alpha = 0.82f * bubbleAlpha),
+                0.55f to color.copy(alpha = 0.80f * bubbleAlpha),
+                0.82f to color.copy(alpha = 0.56f * bubbleAlpha),
+                1f to color.copy(alpha = 0.40f * bubbleAlpha),
+            ),
+            center = gradientCenter,
+            radius = gradientCenter.getDistance(),
+        )
+        onDrawBehind {
+            drawRect(glassFillBrush)
+        }
+    }
+    val glassHighlightModifier = Modifier.drawWithCache {
+        val topHighlightDepth = 6.dp.toPx()
+        val bottomHighlightDepth = 4.dp.toPx()
+        val specularHighlightTop = 1.dp.toPx()
+        val specularHighlightHeight = 1.dp.toPx()
+        val glassTopHighlightBrush = Brush.verticalGradient(
+            colorStops = arrayOf(
+                0f to Color.White.copy(alpha = 0.22f),
+                0.5f to Color.White.copy(alpha = 0.08f),
+                1f to Color.Transparent,
+            ),
+            endY = topHighlightDepth,
+        )
+        val glassBottomHighlightBrush = Brush.verticalGradient(
+            colorStops = arrayOf(
+                0f to Color.Transparent,
+                0.5f to Color.White.copy(alpha = 0.05f),
+                1f to Color.White.copy(alpha = 0.12f),
+            ),
+            startY = size.height - bottomHighlightDepth,
+            endY = size.height,
+        )
+        val glassSpecularHighlightBrush = Brush.linearGradient(
+            colorStops = arrayOf(
+                0f to Color.Transparent,
+                0.10f to Color.White.copy(alpha = 0.14f),
+                0.28f to Color.White.copy(alpha = 0.42f),
+                0.52f to Color.White.copy(alpha = 0.24f),
+                0.78f to Color.White.copy(alpha = 0.08f),
+                1f to Color.Transparent,
+            ),
+            start = Offset.Zero,
+            end = Offset(size.width, 0f),
+        )
+        onDrawBehind {
+            drawRect(
+                brush = glassTopHighlightBrush,
+                size = Size(size.width, minOf(size.height, topHighlightDepth)),
+            )
+            drawRect(
+                brush = glassBottomHighlightBrush,
+                topLeft = Offset(0f, maxOf(0f, size.height - bottomHighlightDepth)),
+                size = Size(size.width, minOf(size.height, bottomHighlightDepth)),
+            )
+            drawRect(
+                brush = glassSpecularHighlightBrush,
+                topLeft = Offset(0f, specularHighlightTop),
+                size = Size(
+                    width = size.width,
+                    height = minOf(specularHighlightHeight, size.height - specularHighlightTop),
+                ),
+            )
+        }
+    }
     val shape = RoundedCornerShape(cornerRadius)
     val hasImage = imagePath.isNotBlank() && java.io.File(imagePath).exists()
-    if (hasImage) {
+    if (materialMode == DisplayMaterialMode.GLASS) {
         Box(
             modifier = Modifier
                 .animateContentSize()
                 .clip(shape)
                 .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier)
-                .then(if (useTranslucentSurface) Modifier.border(1.dp, glassBorderColor, shape) else Modifier)
+                .border(1.dp, glassBorderColor, shape)
+        ) {
+            if (hasImage) {
+                AsyncImage(
+                    model = imagePath,
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.matchParentSize()
+                )
+            }
+            if (!hasImage || overlayEnabled) {
+                Box(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .then(glassFillModifier)
+                )
+            }
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .then(glassHighlightModifier)
+            )
+            Column(modifier = Modifier.padding(8.dp)) { content() }
+        }
+    } else if (hasImage) {
+        Box(
+            modifier = Modifier
+                .animateContentSize()
+                .clip(shape)
+                .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier)
+                .then(
+                    if (materialMode == DisplayMaterialMode.TRANSLUCENT) {
+                        Modifier.border(1.dp, translucentBorderColor, shape)
+                    } else {
+                        Modifier
+                    }
+                )
         ) {
             AsyncImage(
                 model = imagePath,
@@ -769,7 +877,11 @@ private fun BubbleSurface(
             modifier = Modifier.animateContentSize(),
             shape = shape,
             color = color.copy(alpha = effectiveAlpha),
-            border = if (useTranslucentSurface) BorderStroke(1.dp, glassBorderColor) else null,
+            border = if (materialMode == DisplayMaterialMode.TRANSLUCENT) {
+                BorderStroke(1.dp, translucentBorderColor)
+            } else {
+                null
+            },
             onClick = onClick ?: {},
         ) {
             Column(modifier = Modifier.padding(8.dp)) { content() }
@@ -778,8 +890,8 @@ private fun BubbleSurface(
 }
 
 private const val TRANSLUCENT_BUBBLE_BASE_ALPHA = 0.72f
-private const val GLASS_BUBBLE_BASE_ALPHA = 0.46f
-private const val GLASS_BUBBLE_BORDER_ALPHA = 0.18f
+private const val TRANSLUCENT_BUBBLE_BORDER_ALPHA = 0.18f
+private const val GLASS_BUBBLE_BORDER_ALPHA = 0.24f
  
 @Composable
 @Suppress("UnusedCrossTarget")
