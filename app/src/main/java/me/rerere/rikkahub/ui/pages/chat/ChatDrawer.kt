@@ -8,6 +8,7 @@ package me.rerere.rikkahub.ui.pages.chat
 
 import androidx.activity.ComponentActivity
 import android.graphics.BitmapFactory
+import android.os.Build
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -112,6 +113,7 @@ import me.rerere.rikkahub.ui.hooks.readBooleanPreference
 import me.rerere.rikkahub.ui.hooks.rememberIsPlayStoreVersion
 import me.rerere.rikkahub.ui.hooks.useEditState
 import me.rerere.rikkahub.ui.modifier.onClick
+import me.rerere.rikkahub.ui.theme.LocalMaterialMode
 import me.rerere.rikkahub.utils.navigateToChatPage
 import me.rerere.rikkahub.utils.toDp
 import org.koin.androidx.compose.koinViewModel
@@ -186,6 +188,11 @@ fun ChatDrawerContent(
 
     val drawerSurfaceAlpha =
         (settings.displaySetting.drawerSurfaceOpacity / 100f).coerceIn(0.6f, 1f)
+    // GLASS + 界面实时渲染 + API 31+：Drawer 容器透明，透出 ChatPage 同宿主原生模糊层；否则静态回退
+    val useLiveDrawerGlass =
+        settings.displaySetting.interfaceRealtimeRendering &&
+            LocalMaterialMode.current == DisplayMaterialMode.GLASS &&
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
     val drawerShape = DrawerDefaults.shape
     val showDrawerBorder = when (settings.displaySetting.materialMode) {
         DisplayMaterialMode.TRANSLUCENT,
@@ -211,13 +218,19 @@ fun ChatDrawerContent(
     ModalDrawerSheet(
         modifier = drawerModifier,
         drawerShape = drawerShape,
-        drawerContainerColor = DrawerDefaults.modalContainerColor.copy(alpha = drawerSurfaceAlpha),
+        drawerContainerColor = if (useLiveDrawerGlass) {
+            // 实时玻璃：保留克制的最低半透明主题底色（不遮死 ChatPage 高斯模糊），
+            // 确保即使模糊副本绘制失败，Drawer 也不会全透明
+            DrawerDefaults.modalContainerColor.copy(alpha = 0.15f * drawerSurfaceAlpha)
+        } else {
+            DrawerDefaults.modalContainerColor.copy(alpha = drawerSurfaceAlpha)
+        },
         drawerContentColor = MaterialTheme.colorScheme.onSurface,
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
-            // 侧边栏背景图（最底层）
+            // 侧边栏背景图（最底层；实时模糊时跳过，避免遮挡 ChatPage 模糊层）
             val drawerBgPath = settings.displaySetting.drawerBackgroundPath
-            if (drawerBgPath.isNotEmpty()) {
+            if (drawerBgPath.isNotEmpty() && !useLiveDrawerGlass) {
                 val bgFile = java.io.File(drawerBgPath)
                 if (bgFile.exists()) {
                     val bgBitmap = remember(drawerBgPath) {

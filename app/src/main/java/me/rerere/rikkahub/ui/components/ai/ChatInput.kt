@@ -7,6 +7,7 @@
 package me.rerere.rikkahub.ui.components.ai
 
 import android.net.Uri
+import android.os.Build
 import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -172,6 +173,9 @@ fun ChatInput(
     val assistant = settings.getCurrentAssistant()
     val hazeTintColor = MaterialTheme.colorScheme.surfaceContainerLow
     val materialMode = LocalMaterialMode.current
+    val useRealtimeBlur = settings.displaySetting.enableBlurEffect &&
+        materialMode == DisplayMaterialMode.GLASS &&
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
     val useMaterialBorder = materialMode == DisplayMaterialMode.TRANSLUCENT ||
         materialMode == DisplayMaterialMode.GLASS
 
@@ -498,7 +502,7 @@ fun ChatInput(
         } else null
     }
     val inputContainerColor = when {
-        inputBgBitmap != null || settings.displaySetting.enableBlurEffect -> Color.Transparent
+        inputBgBitmap != null || useRealtimeBlur -> Color.Transparent
         else -> {
             val baseColor = settings.displaySetting.inputFieldColor?.let { it.toComposeColor() } ?: hazeTintColor
             when (materialMode) {
@@ -515,7 +519,7 @@ fun ChatInput(
         null
     }
     val useStaticGlass = materialMode == DisplayMaterialMode.GLASS &&
-        inputBgBitmap == null && !settings.displaySetting.enableBlurEffect
+        inputBgBitmap == null && !useRealtimeBlur
     val glassSurfaceTint = MaterialTheme.colorScheme.surface
     val glassHighlight = MaterialTheme.colorScheme.onSurface
     val staticGlassModifier = if (useStaticGlass) {
@@ -573,7 +577,7 @@ fun ChatInput(
                     .fillMaxWidth()
                     .clip(MaterialTheme.shapes.largeIncreased)
                     .then(
-                        if (settings.displaySetting.enableBlurEffect) Modifier.hazeEffect(
+                        if (useRealtimeBlur) Modifier.hazeEffect(
                             state = hazeState,
                             style = HazeMaterials.ultraThin(containerColor = hazeTintColor)
                         )
@@ -800,7 +804,7 @@ fun ChatInput(
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(20.dp))
                             .then(
-                                if (settings.displaySetting.enableBlurEffect) Modifier.hazeEffect(
+                                if (useRealtimeBlur) Modifier.hazeEffect(
                                     state = hazeState,
                                     style = HazeMaterials.ultraThin()
                                 )
@@ -808,7 +812,7 @@ fun ChatInput(
                             ),
                         shape = RoundedCornerShape(20.dp),
                         tonalElevation = 0.dp,
-                        color = if (settings.displaySetting.enableBlurEffect) {
+                        color = if (useRealtimeBlur) {
                             Color.Transparent
                         } else {
                             popupContainerColor(hazeTintColor)
