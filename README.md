@@ -22,7 +22,7 @@
 > 本仓库是 OrangeChat 的第三方非官方修改版，主要增加了 Liquid Glass
 > 界面、静态玻璃材质、侧边栏与聊天气泡背景模糊等功能。
 >
-> 上游项目：https://github.com/jsue1231513/orangechat
+> 上游项目：https://github.com/sue1231513/orangechat
 >
 > 本仓库仅公开源代码，不用于商业用途。
 > 原项目及原有代码的版权归原作者和相关贡献者所有，许可条款请参阅根目录的 `LICENSE`。
