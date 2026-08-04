@@ -989,14 +989,14 @@ private fun BubbleSurface(
         val highlightBrush = Brush.radialGradient(
             colorStops = if (isDarkTheme) {
                 arrayOf(
-                    0f to Color.White.copy(alpha = 0.10f),
-                    0.45f to Color.White.copy(alpha = 0.035f),
+                    0f to Color.White.copy(alpha = 0.06f),
+                    0.45f to Color.White.copy(alpha = 0.02f),
                     1f to Color.Transparent,
                 )
             } else {
                 arrayOf(
-                    0f to Color.White.copy(alpha = 0.28f),
-                    0.42f to Color.White.copy(alpha = 0.11f),
+                    0f to Color.White.copy(alpha = 0.18f),
+                    0.42f to Color.White.copy(alpha = 0.07f),
                     1f to Color.Transparent,
                 )
             },
@@ -1011,9 +1011,9 @@ private fun BubbleSurface(
     val liveBubbleNightReadabilityModifier = Modifier.drawWithCache {
         val readabilityBrush = Brush.linearGradient(
             colorStops = arrayOf(
-                0f to Color.Black.copy(alpha = 0.20f),
-                0.55f to Color.Black.copy(alpha = 0.28f),
-                1f to Color.Black.copy(alpha = 0.34f),
+                0f to Color.Black.copy(alpha = 0.06f),
+                0.55f to Color.Black.copy(alpha = 0.09f),
+                1f to Color.Black.copy(alpha = 0.12f),
             ),
             start = Offset.Zero,
             end = Offset(size.width, size.height),
