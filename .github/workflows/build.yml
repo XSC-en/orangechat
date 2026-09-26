@@ -1,0 +1,84 @@
+name: Build Debug APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [master]
+    paths:
+      - 'app/**'
+      - 'build.gradle.kts'
+      - 'settings.gradle.kts'
+      - 'gradle.properties'
+      - '.github/workflows/build.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Init material-color-utilities submodule (HTTPS only)
+        run: |
+          git config --global url."https://github.com/".insteadOf git@github.com:
+          git submodule update --init material3/material-color-utilities
+
+      - name: Create placeholder google-services.json
+        run: |
+          cat > app/google-services.json << 'EOF'
+          {
+            "project_info": {
+              "project_number": "placeholder",
+              "project_id": "placeholder",
+              "storage_bucket": "placeholder"
+            },
+            "client": [
+              {
+                "client_info": {
+                  "mobilesdk_app_id": "placeholder",
+                  "android_client_info": {
+                    "package_name": "me.rerere.rikkahub"
+                  }
+                },
+                "oauth_client": [],
+                "api_key": [],
+                "services": {}
+              }
+            ],
+            "configuration_version": "1"
+          }
+          EOF
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Setup pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@10 --activate
+
+      - name: Install web-ui dependencies
+        run: pnpm -C web-ui install --no-frozen-lockfile
+
+      - name: Grant execute permission to gradlew
+        run: chmod +x gradlew
+
+      - name: Build Debug APK
+        run: ./gradlew assembleDebug --no-daemon --stacktrace
+
+      - name: Upload Debug APK
+        uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: muran-debug
+          path: app/build/outputs/apk/debug/*.apk
