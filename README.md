@@ -1,74 +1,42 @@
-<div align="center">
+# 暮暗 Muran
 
-<img src="docs/icon.png" alt="暮暗" width="120" />
+> 暮色中的一束光 — 橘瓣衍生，暮色主题重制版
 
-<h1>暮暗 Muran</h1>
+基于 [橘瓣 OrangeChat](https://github.com/sue1231513/orangechat) 二次开发，重做暮色系 UI，集成记账、QQ日志、考公等功能模块。
 
-<p><strong>暮色中的一束光</strong></p>
+## 构建状态
 
-<p>基于 <a href="https://github.com/sue1231513/orangechat">橘瓣 OrangeChat</a> 二次开发<br/>暮色系 UI 重制 · 记账 · QQ日志 · 考公</p>
+[![Build APK](https://github.com/XSC-en/orangechat/actions/workflows/build.yml/badge.svg)](https://github.com/XSC-en/orangechat/actions/workflows/build.yml)
 
-<p>
-  <img src="https://img.shields.io/badge/Kotlin-100%25-7F52FF" alt="Kotlin" />
-  <img src="https://img.shields.io/badge/Android-26%2B-green" alt="Android" />
-  <img src="https://img.shields.io/badge/License-AGPL%20v3-red" alt="License" />
-</p>
+## 功能特性
 
-</div>
+- 🎨 暮色主题（Muran Theme）+ 渐变背景
+- 💬 AI 聊天（Ombre Brain 共享记忆接入）
+- 📝 记账模块（Room 本地存储）
+- 📋 QQ 日志（AI 思考链 + token 追踪）
+- 📚 考公刷题（每日一练）
+- 🌤️ 实时天气
+- 🔌 插件市场
+- ☁️ 多端同步
 
----
+## 下载
 
-## ✨ 暮暗独有功能
+前往 [Releases](https://github.com/XSC-en/orangechat/releases) 下载最新 APK。
 
-### 🎨 暮色主题
-
-专属 Muran Theme — 暮光金 #D8B98A + 暮紫 #A89BCB，柔和的渐变背景，告别刺眼。
-
-### 📝 记账模块
-
-本地 Room 数据库存储，记录收支，支持分类统计。
-
-### 📋 QQ 日志
-
-完整记录 AI 思考链 + token 消耗，方便回溯和优化。
-
-### 📚 考公刷题
-
-每日一练，支持题目分类和进度追踪。
-
-### 💬 AI 聊天
-
-基于 Ombre Brain 共享记忆系统，多 AI 协同记忆。
-
-### 🌤️ 实时天气
-
-Open-Meteo API + 系统定位，重庆兜底。
-
-### 🔌 插件市场
-
-浏览、下载、安装社区插件。
-
----
-
-## 🛠️ 技术栈
-
-Kotlin + Jetpack Compose + Material 3 + Koin + Room + DataStore
-
-## 📦 构建
+## 开发
 
 ```bash
+# 构建 debug APK
 ./gradlew assembleDebug
+
+# 构建 release APK（需配置 signing）
 ./gradlew assembleRelease
 ```
 
-## 📄 许可证
+## 协议
 
-GNU AGPL v3，详见 [LICENSE](LICENSE)。
+基于 GNU AGPL v3 开源，详见 [LICENSE](LICENSE)。
 
 ---
 
-<div align="center">
-
-**暮色中的一束光 · Muran**
-
-</div>
+*Built with ❤️ by XSC-en*
