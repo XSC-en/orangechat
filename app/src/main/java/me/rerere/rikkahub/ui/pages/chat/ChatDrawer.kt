@@ -75,6 +75,10 @@ import me.rerere.hugeicons.stroke.FolderAdd
 import me.rerere.hugeicons.stroke.Image02
 import me.rerere.hugeicons.stroke.InLove
 import me.rerere.hugeicons.stroke.LanguageCircle
+import me.rerere.hugeicons.stroke.CloudServer
+import me.rerere.hugeicons.stroke.Message01
+import me.rerere.hugeicons.stroke.AppStore
+import me.rerere.hugeicons.stroke.BookOpen01
 import me.rerere.hugeicons.stroke.LookTop
 import me.rerere.hugeicons.stroke.PencilEdit01
 import me.rerere.hugeicons.stroke.Rocket01
@@ -416,6 +420,46 @@ fun ChatDrawerContent(
                             onClick = {
                                 showMenuPopup = false
                                 navController.navigate(Screen.MiniAppManager)
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("记账") },
+                            leadingIcon = { Icon(HugeIcons.ChartColumn, null) },
+                            onClick = {
+                                showMenuPopup = false
+                                navController.navigate(Screen.Accounting)
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("天气") },
+                            leadingIcon = { Icon(HugeIcons.CloudServer, null) },
+                            onClick = {
+                                showMenuPopup = false
+                                navController.navigate(Screen.Weather)
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("QQ 日志") },
+                            leadingIcon = { Icon(HugeIcons.Message01, null) },
+                            onClick = {
+                                showMenuPopup = false
+                                navController.navigate(Screen.QQLogs)
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("插件市场") },
+                            leadingIcon = { Icon(HugeIcons.AppStore, null) },
+                            onClick = {
+                                showMenuPopup = false
+                                navController.navigate(Screen.PluginMarket)
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("考公刷题") },
+                            leadingIcon = { Icon(HugeIcons.BookOpen01, null) },
+                            onClick = {
+                                showMenuPopup = false
+                                navController.navigate(Screen.ExamPrep)
                             }
                         )
                     }

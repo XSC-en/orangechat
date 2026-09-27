@@ -167,6 +167,11 @@ import me.rerere.rikkahub.ui.pages.memory.MemoryBankPage
 import me.rerere.rikkahub.ui.components.ui.EmojiPickerPage
 import me.rerere.rikkahub.ui.pages.share.handler.ShareHandlerPage
 import me.rerere.rikkahub.ui.pages.stats.StatsPage
+import me.rerere.rikkahub.ui.pages.accounting.AccountingPage
+import me.rerere.rikkahub.ui.pages.weather.WeatherPage
+import me.rerere.rikkahub.ui.pages.qqlog.QQLogPage
+import me.rerere.rikkahub.ui.pages.pluginmarket.PluginMarketPage
+import me.rerere.rikkahub.ui.pages.examprep.ExamPrepPage
 import me.rerere.rikkahub.ui.pages.translator.TranslatorPage
  import me.rerere.rikkahub.ui.pages.voice.IncomingCallPage
  import me.rerere.rikkahub.ui.pages.voice.VoiceCallPage
@@ -678,6 +683,21 @@ entry<Screen.Extensions> {
                             entry<Screen.Health> {
                                 HealthPage()
                             }
+                            entry<Screen.Accounting> {
+                                AccountingPage()
+                            }
+                            entry<Screen.Weather> {
+                                WeatherPage()
+                            }
+                            entry<Screen.QQLogs> {
+                                QQLogPage()
+                            }
+                            entry<Screen.PluginMarket> {
+                                PluginMarketPage()
+                            }
+                            entry<Screen.ExamPrep> {
+                                ExamPrepPage()
+                            }
 
                             entry<Screen.Stats> {
                                 StatsPage()
@@ -1123,6 +1143,21 @@ sealed interface Screen : NavKey {
 
     @Serializable
     data object MiniAppManager : Screen
+
+    @Serializable
+    data object Accounting : Screen
+
+    @Serializable
+    data object Weather : Screen
+
+    @Serializable
+    data object QQLogs : Screen
+
+    @Serializable
+    data object PluginMarket : Screen
+
+    @Serializable
+    data object ExamPrep : Screen
 
     @Serializable
     data class MiniAppEdit(val id: String?) : Screen
