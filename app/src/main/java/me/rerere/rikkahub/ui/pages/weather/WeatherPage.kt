@@ -23,6 +23,8 @@ import okhttp3.Request
 import org.json.JSONObject
 import org.koin.compose.koinInject
 import me.rerere.rikkahub.ui.theme.CardShape
+import me.rerere.rikkahub.data.datastore.SettingsStore
+import androidx.compose.foundation.layout.Row
 
 @Composable
 fun WeatherPage() {
@@ -30,6 +32,11 @@ fun WeatherPage() {
     var weather by remember { mutableStateOf<WeatherData?>(null) }
     var loading by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf<String?>(null) }
+    val settingsStore = koinInject<SettingsStore>()
+    val companionDays = remember {
+        val t = settingsStore.settingsFlow.value.firstLaunchTime
+        if (t > 0) ((System.currentTimeMillis() - t) / 86400000L).toInt() + 1 else 1
+    }
 
     LaunchedEffect(Unit) {
         try {
@@ -67,7 +74,18 @@ fun WeatherPage() {
         modifier = Modifier.fillMaxSize().padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Text(text = "天气", style = MaterialTheme.typography.headlineMedium)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(text = "天气", style = MaterialTheme.typography.headlineMedium)
+            Text(
+                text = "与你相伴第 $companionDays 天",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
 
         when {
             loading -> Text(text = "加载中...")

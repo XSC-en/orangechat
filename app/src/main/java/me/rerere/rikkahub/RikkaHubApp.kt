@@ -149,7 +149,10 @@ class RikkaHubApp : Application() {
             runCatching {
                 val store = get<SettingsStore>()
                 val current = store.settingsFlowRaw.first()
-                store.update(current.copy(launchCount = current.launchCount + 1))
+                store.update(current.copy(
+                    launchCount = current.launchCount + 1,
+                    firstLaunchTime = current.firstLaunchTime.takeIf { it > 0 } ?: System.currentTimeMillis(),
+                ))
                 Log.i(TAG, "incrementLaunchCount: ${store.settingsFlowRaw.first().launchCount}")
             }.onFailure {
                 Log.e(TAG, "incrementLaunchCount failed", it)
