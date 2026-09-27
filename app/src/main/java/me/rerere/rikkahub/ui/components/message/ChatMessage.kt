@@ -56,7 +56,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.runtime.CompositionLocalProvider
+import me.rerere.rikkahub.ui.theme.MuranVisuals
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -411,6 +415,8 @@ private fun MessagePartsBlock(
                                                         imagePath = displaySettings.userBubbleImagePath,
                                                         cornerRadius = displaySettings.bubbleCornerRadius.dp,
                                                         color = displaySettings.userBubbleColor?.let { it.toComposeColor() } ?: MaterialTheme.colorScheme.secondaryContainer,
+                                                        brush = if (displaySettings.themeId == MuranVisuals.THEME_ID && displaySettings.userBubbleColor == null) MuranVisuals.userBubble else null,
+                                                        contentColor = if (displaySettings.themeId == MuranVisuals.THEME_ID) MuranVisuals.userBubbleContent else null,
                                                         overlayEnabled = displaySettings.bubbleImageOverlayEnabled,
                                                         bubbleAlpha = bubbleAlpha,
                                                         onClick = { onUserMessageClick?.invoke() },
@@ -432,6 +438,8 @@ private fun MessagePartsBlock(
                                             imagePath = displaySettings.userBubbleImagePath,
                                             cornerRadius = displaySettings.bubbleCornerRadius.dp,
                                             color = displaySettings.userBubbleColor?.let { it.toComposeColor() } ?: MaterialTheme.colorScheme.secondaryContainer,
+                                            brush = if (displaySettings.themeId == MuranVisuals.THEME_ID && displaySettings.userBubbleColor == null) MuranVisuals.userBubble else null,
+                                            contentColor = if (displaySettings.themeId == MuranVisuals.THEME_ID) MuranVisuals.userBubbleContent else null,
                                             overlayEnabled = displaySettings.bubbleImageOverlayEnabled,
                                             bubbleAlpha = bubbleAlpha,
                                             onClick = { onUserMessageClick?.invoke() },
@@ -462,6 +470,7 @@ private fun MessagePartsBlock(
                                                         imagePath = displaySettings.assistantBubbleImagePath,
                                                         cornerRadius = displaySettings.bubbleCornerRadius.dp,
                                                         color = displaySettings.assistantBubbleColor?.let { it.toComposeColor() } ?: MaterialTheme.colorScheme.surfaceContainerHigh,
+                                                        brush = if (displaySettings.themeId == MuranVisuals.THEME_ID && displaySettings.assistantBubbleColor == null) MuranVisuals.aiBubble else null,
                                                         overlayEnabled = displaySettings.bubbleImageOverlayEnabled,
                                                         bubbleAlpha = bubbleAlpha,
                                                     ) {
@@ -495,6 +504,7 @@ private fun MessagePartsBlock(
                                             imagePath = displaySettings.assistantBubbleImagePath,
                                             cornerRadius = displaySettings.bubbleCornerRadius.dp,
                                             color = displaySettings.assistantBubbleColor?.let { it.toComposeColor() } ?: MaterialTheme.colorScheme.surfaceContainerHigh,
+                                            brush = if (displaySettings.themeId == MuranVisuals.THEME_ID && displaySettings.assistantBubbleColor == null) MuranVisuals.aiBubble else null,
                                             overlayEnabled = displaySettings.bubbleImageOverlayEnabled,
                                             bubbleAlpha = bubbleAlpha,
                                         ) {
@@ -723,6 +733,8 @@ private fun BubbleSurface(
     overlayEnabled: Boolean,
     bubbleAlpha: Float,
     onClick: (() -> Unit)? = null,
+    brush: Brush? = null,
+    contentColor: Color? = null,
     content: @Composable () -> Unit,
 ) {
     val hasImage = imagePath.isNotBlank() && java.io.File(imagePath).exists()
@@ -747,6 +759,20 @@ private fun BubbleSurface(
                 )
             }
             Column(modifier = Modifier.padding(8.dp)) { content() }
+        }
+    } else if (brush != null) {
+        Box(
+            modifier = Modifier
+                .animateContentSize()
+                .clip(RoundedCornerShape(cornerRadius))
+                .background(brush = brush, shape = RoundedCornerShape(cornerRadius))
+                .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier)
+        ) {
+            CompositionLocalProvider(
+                LocalContentColor provides (contentColor ?: LocalContentColor.current)
+            ) {
+                Column(modifier = Modifier.padding(8.dp)) { content() }
+            }
         }
     } else {
         Surface(

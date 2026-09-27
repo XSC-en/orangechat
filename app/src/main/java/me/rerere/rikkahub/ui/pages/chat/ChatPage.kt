@@ -40,6 +40,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import me.rerere.rikkahub.ui.theme.MuranVisuals
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -265,10 +268,18 @@ private fun ChatPageContent(
 
     TTSAutoPlay(vm = vm, setting = setting, conversation = conversation)
 
+    val muranBg = if (setting.displaySetting.themeId == MuranVisuals.THEME_ID) MuranVisuals.twilightBackground else null
     Surface(
-        color = MaterialTheme.colorScheme.background,
+        color = if (muranBg != null) Color.Transparent else MaterialTheme.colorScheme.background,
         modifier = Modifier.fillMaxSize()
     ) {
+        if (muranBg != null) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(muranBg)
+            )
+        }
         AssistantBackground(setting = setting)
         Scaffold(
             topBar = {
