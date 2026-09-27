@@ -268,7 +268,7 @@ private fun ChatPageContent(
 
     TTSAutoPlay(vm = vm, setting = setting, conversation = conversation)
 
-    val muranBg = if (setting.displaySetting.themeId == MuranVisuals.THEME_ID) MuranVisuals.twilightBackground else null
+    val muranBg = if (setting.themeId == MuranVisuals.THEME_ID) MuranVisuals.twilightBackground else null
     Surface(
         color = if (muranBg != null) Color.Transparent else MaterialTheme.colorScheme.background,
         modifier = Modifier.fillMaxSize()
