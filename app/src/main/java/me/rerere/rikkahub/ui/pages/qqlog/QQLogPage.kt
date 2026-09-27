@@ -240,7 +240,7 @@ private fun AddLogDialog(
                         onValueChange = { outputTokens = it },
                         label = { Text("输出Token") },
                         modifier = Modifier.weight(1f),
-                        keyboardOptions = androidx.compose.ui.text.input.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number)
+                        keyboardOptions = KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number)
                     )
                 }
             }
