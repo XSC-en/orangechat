@@ -1,5 +1,7 @@
 package me.rerere.rikkahub.ui.pages.examprep
 
+import androidx.compose.foundation.layout.Row
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -70,7 +72,7 @@ fun ExamPrepPage() {
             PracticeQuestion(
                 id = "2",
                 category = "言语",
-                question = "下列成语中，与"刻苦学习"最相近的是？",
+                question = "下列成语中，与「刻苦学习」最相近的是？",
                 options = listOf("废寝忘食", "守株待兔", "掩耳盗铃", "画蛇添足"),
                 correctAnswer = 0,
                 explanation = "废寝忘食形容专心努力，与刻苦学习意思最相近。"
@@ -159,8 +161,7 @@ private fun DailyPracticeTab(
         if (completed) {
             Card(
                             shape = CardShape,
-modifier = Modifier.fillMaxWidth(,
-                        ),
+modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
             ) {
                 Column(
@@ -183,8 +184,7 @@ modifier = Modifier.fillMaxWidth(,
             val question = questions[currentIndex]
             Card(
                             shape = CardShape,
-modifier = Modifier.fillMaxWidth(,
-                        ),
+modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)
             ) {
                 Column(
@@ -204,8 +204,7 @@ modifier = Modifier.fillMaxWidth(,
                         val isCorrect = index == question.correctAnswer
                         Card(
                             shape = CardShape,
-modifier = Modifier.fillMaxWidth(,
-                        ),
+modifier = Modifier.fillMaxWidth(),
                             colors = CardDefaults.cardColors(
                                 containerColor = when {
                                     showExplanation && isCorrect -> androidx.compose.ui.graphics.Color(0xFF4CAF50).copy(alpha = 0.2f)
@@ -232,8 +231,7 @@ modifier = Modifier.fillMaxWidth(,
                     if (showExplanation) {
                         Card(
                             shape = CardShape,
-modifier = Modifier.fillMaxWidth(,
-                        ),
+modifier = Modifier.fillMaxWidth(),
                             colors = CardDefaults.cardColors(containerColor = androidx.compose.ui.graphics.Color(0xFF4CAF50).copy(alpha = 0.1f))
                         ) {
                             Text(
@@ -291,8 +289,7 @@ private fun PracticeTab(categories: List<ExamCategory>) {
         items(categories) { cat ->
             Card(
                             shape = CardShape,
-modifier = Modifier.fillMaxWidth(,
-                        ),
+modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)
             ) {
                 Column(
@@ -336,8 +333,7 @@ private fun ProgressTab() {
         item {
             Card(
                             shape = CardShape,
-modifier = Modifier.fillMaxWidth(,
-                        ),
+modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
@@ -352,8 +348,7 @@ modifier = Modifier.fillMaxWidth(,
         items(listOf("常识判断", "言语理解", "数量关系", "判断推理", "资料分析")) { category ->
             Card(
                             shape = CardShape,
-modifier = Modifier.fillMaxWidth(,
-                        ),
+modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {

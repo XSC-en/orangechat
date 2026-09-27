@@ -119,8 +119,7 @@ modifier = Modifier.weight(1f,
             items(transactions.sortedByDescending { it.date }) { tx ->
                 Card(
                             shape = CardShape,
-modifier = Modifier.fillMaxWidth(,
-                        ),
+modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)
                 ) {
                     Row(

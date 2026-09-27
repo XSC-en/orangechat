@@ -76,8 +76,7 @@ fun WeatherPage() {
                 weather?.let { data ->
                     Card(
                             shape = CardShape,
-modifier = Modifier.fillMaxWidth(,
-                        ),
+modifier = Modifier.fillMaxWidth(),
                         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)
                     ) {
                         Column(

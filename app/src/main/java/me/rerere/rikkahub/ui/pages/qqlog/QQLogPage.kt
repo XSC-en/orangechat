@@ -1,5 +1,7 @@
 package me.rerere.rikkahub.ui.pages.qqlog
 
+import androidx.compose.foundation.layout.Row
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -78,8 +80,7 @@ fun QQLogPage() {
                 items(logs) { log ->
                     Card(
                             shape = CardShape,
-modifier = Modifier.fillMaxWidth(,
-                        ),
+modifier = Modifier.fillMaxWidth(),
                         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)
                     ) {
                         Column(

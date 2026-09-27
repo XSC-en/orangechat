@@ -1,5 +1,8 @@
 package me.rerere.rikkahub.ui.pages.pluginmarket
 
+import androidx.compose.foundation.layout.Row
+import me.rerere.rikkahub.R
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -53,6 +56,7 @@ fun PluginMarketPage() {
     var loading by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf<String?>(null) }
     var installingId by remember { mutableStateOf<String?>(null) }
+    val baseUrl = stringResource(id = R.string.plugin_market_base_url)
 
     Column(
         modifier = Modifier.fillMaxSize().padding(16.dp),
@@ -68,8 +72,7 @@ fun PluginMarketPage() {
                     items(plugins) { plugin ->
                         Card(
                             shape = CardShape,
-modifier = Modifier.fillMaxWidth(,
-                        ),
+modifier = Modifier.fillMaxWidth(),
                             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)
                         ) {
                             Column(modifier = Modifier.padding(16.dp)) {
@@ -93,7 +96,7 @@ modifier = Modifier.fillMaxWidth(,
                                                 try {
                                                     withContext(Dispatchers.IO) {
                                                         val request = Request.Builder()
-                                                            .url("${stringResource(id = R.string.plugin_market_base_url)}/plugin-market/api/plugins/${plugin.id}/download")
+                                                            .url("${baseUrl}/plugin-market/api/plugins/${plugin.id}/download")
                                                             .build()
                                                         val response = client.newCall(request).execute()
                                                         if (response.isSuccessful) {
@@ -128,7 +131,7 @@ modifier = Modifier.fillMaxWidth(,
     LaunchedEffect(Unit) {
         try {
             val request = Request.Builder()
-                .url("${stringResource(id = R.string.plugin_market_base_url)}/plugin-market/api/plugins")
+                .url("${baseUrl}/plugin-market/api/plugins")
                 .build()
             val response = client.newCall(request).execute()
             if (response.isSuccessful) {
