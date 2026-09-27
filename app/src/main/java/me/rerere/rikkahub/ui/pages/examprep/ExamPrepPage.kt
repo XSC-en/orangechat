@@ -5,8 +5,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
+import com.composables.icons.lucide.Lucide
+import com.composables.icons.lucide.CircleCheck
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -116,7 +116,7 @@ fun ExamPrepPage() {
                                 )
                                 if (question.done) {
                                     Icon(
-                                        imageVector = Icons.Default.CheckCircle,
+                                        imageVector = Lucide.CircleCheck,
                                         contentDescription = "Done",
                                         tint = WarmGoldMain,
                                         modifier = Modifier.size(20.dp)
