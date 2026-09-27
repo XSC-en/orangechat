@@ -172,6 +172,7 @@ import me.rerere.rikkahub.ui.pages.weather.WeatherPage
 import me.rerere.rikkahub.ui.pages.qqlog.QQLogPage
 import me.rerere.rikkahub.ui.pages.pluginmarket.PluginMarketPage
 import me.rerere.rikkahub.ui.pages.examprep.ExamPrepPage
+import me.rerere.rikkahub.ui.screens.WeatherHomeScreen
 import me.rerere.rikkahub.ui.pages.translator.TranslatorPage
  import me.rerere.rikkahub.ui.pages.voice.IncomingCallPage
  import me.rerere.rikkahub.ui.pages.voice.VoiceCallPage
@@ -362,8 +363,8 @@ class RouteActivity : ComponentActivity() {
         val eventBus = koinInject<AppEventBus>()
         val migrationState by DatabaseMigrationTracker.state.collectAsStateWithLifecycle()
 
-        // Muran: 启动直达天气页（点进 APP 先见天气，聊天从抽屉进）
-        val startScreen: Screen = Screen.Weather
+        // Muran: 启动直达暮色首页（天气陪伴 + 相伴天数 + 私人空间）
+        val startScreen: Screen = Screen.Home
 
         val backStack = rememberNavBackStack(startScreen)
         SideEffect { this@RouteActivity.navStack = backStack }
@@ -674,6 +675,16 @@ entry<Screen.Extensions> {
 
                             entry<Screen.Health> {
                                 HealthPage()
+                            }
+                            entry<Screen.Home> {
+                                val companionDays = if (settings.firstLaunchTime > 0) {
+                                    ((System.currentTimeMillis() - settings.firstLaunchTime) / 86400000L).toInt() + 1
+                                } else 1
+                                WeatherHomeScreen(
+                                    companionDays = companionDays,
+                                    onNewChat = { backStack.add(Screen.Chat(id = Uuid.random().toString())) },
+                                    onOpenDrawer = { backStack.add(Screen.Assistant) },
+                                )
                             }
                             entry<Screen.Accounting> {
                                 AccountingPage()
@@ -1150,6 +1161,9 @@ sealed interface Screen : NavKey {
 
     @Serializable
     data object ExamPrep : Screen
+
+    @Serializable
+    data object Home : Screen
 
     @Serializable
     data class MiniAppEdit(val id: String?) : Screen
