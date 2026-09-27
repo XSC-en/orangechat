@@ -21,6 +21,8 @@ import me.rerere.rikkahub.ui.components.GlassCard
 import me.rerere.rikkahub.ui.components.GlowAvatar
 import me.rerere.rikkahub.ui.components.WeatherCompanionCard
 import me.rerere.rikkahub.ui.pages.weather.WeatherData
+import me.rerere.rikkahub.ui.pages.weather.weatherCodeToDescription
+import me.rerere.rikkahub.ui.pages.weather.weatherCodeToEmoji
 import me.rerere.rikkahub.ui.theme.*
 import okhttp3.OkHttpClient
 import okhttp3.Request
