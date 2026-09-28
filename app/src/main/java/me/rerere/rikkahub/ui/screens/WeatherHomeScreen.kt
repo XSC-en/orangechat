@@ -3,6 +3,7 @@ package me.rerere.rikkahub.ui.screens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -14,12 +15,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.composables.icons.lucide.Lucide
 import com.composables.icons.lucide.Search
+import me.rerere.rikkahub.Screen
+import me.rerere.rikkahub.data.datastore.Settings
+import me.rerere.rikkahub.data.model.Avatar
+import me.rerere.rikkahub.data.model.Conversation
+import me.rerere.rikkahub.data.repository.ConversationRepository
 import me.rerere.rikkahub.ui.components.CompanionHeader
 import me.rerere.rikkahub.ui.components.GlassCard
 import me.rerere.rikkahub.ui.components.GlowAvatar
+import me.rerere.rikkahub.ui.components.UIAvatar
 import me.rerere.rikkahub.ui.components.WeatherCompanionCard
+import me.rerere.rikkahub.ui.context.LocalNavController
+import me.rerere.rikkahub.ui.context.LocalSettings
 import me.rerere.rikkahub.ui.pages.weather.WeatherData
 import me.rerere.rikkahub.ui.pages.weather.weatherCodeToDescription
 import me.rerere.rikkahub.ui.pages.weather.weatherCodeToEmoji
@@ -28,6 +38,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONObject
 import org.koin.compose.koinInject
+import kotlin.uuid.Uuid
 
 @Composable
 fun WeatherHomeScreen(
@@ -36,7 +47,14 @@ fun WeatherHomeScreen(
     onNewChat: () -> Unit = {}
 ) {
     val client = koinInject<OkHttpClient>()
+    val conversationRepository = koinInject<ConversationRepository>()
+    val settings by LocalSettings.current.settingsFlow.collectAsStateWithLifecycle(
+        initialValue = Settings.dummy()
+    )
+    val navController = LocalNavController.current
+
     var weather by remember { mutableStateOf<WeatherData?>(null) }
+    var recentConversations by remember { mutableStateOf<List<Conversation>>(emptyList()) }
 
     LaunchedEffect(Unit) {
         try {
@@ -58,6 +76,19 @@ fun WeatherHomeScreen(
                 )
             }
         } catch (_: Exception) { }
+    }
+
+    LaunchedEffect(settings.assistantId) {
+        if (settings.assistantId != Uuid.random()) {
+            recentConversations = try {
+                conversationRepository.getRecentConversations(
+                    assistantId = settings.assistantId,
+                    limit = 5
+                )
+            } catch (_: Exception) {
+                emptyList()
+            }
+        }
     }
 
     Box(
@@ -91,7 +122,7 @@ fun WeatherHomeScreen(
                     )
                 }
 
-                // 3. 玻璃态搜索框
+                // 3. 玻璃态搜索框（可点击跳转搜索）
                 item {
                     GlassCard(
                         modifier = Modifier
@@ -103,6 +134,7 @@ fun WeatherHomeScreen(
                         Row(
                             modifier = Modifier
                                 .fillMaxSize()
+                                .clickable { navController.navigate(Screen.MessageSearch) }
                                 .padding(horizontal = 16.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
@@ -132,40 +164,81 @@ fun WeatherHomeScreen(
                     )
                 }
 
-                items(3) { index ->
-                    GlassCard(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 20.dp),
-                        cornerRadius = 20.dp
-                    ) {
-                        Row(
+                if (recentConversations.isEmpty()) {
+                    item {
+                        GlassCard(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(16.dp),
-                            verticalAlignment = Alignment.CenterVertically
+                                .padding(horizontal = 20.dp),
+                            cornerRadius = 20.dp
                         ) {
-                            GlowAvatar(size = 44.dp) {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .background(TwilightPurpleDark)
-                                )
-                            }
-                            Spacer(modifier = Modifier.width(14.dp))
-                            Column {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(24.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
                                 Text(
-                                    text = if (index == 0) "暮暗思考者" else "对话空间 ${index + 1}",
-                                    style = MuranTypography.titleLarge.copy(fontSize = 15.sp)
+                                    text = "还没有对话",
+                                    style = MuranTypography.titleLarge.copy(fontSize = 15.sp),
+                                    color = TextSecondary
                                 )
-                                Spacer(modifier = Modifier.height(2.dp))
+                                Spacer(modifier = Modifier.height(8.dp))
                                 Text(
-                                    text = "\"夕阳褪去时，我们在这里倾听。\"",
+                                    text = "点击右上角 + 开始第一次对话",
                                     style = MuranTypography.bodyMedium.copy(
                                         color = TextTertiary,
                                         fontSize = 13.sp
                                     )
                                 )
+                            }
+                        }
+                    }
+                } else {
+                    items(recentConversations) { conversation ->
+                        val assistant = settings.getAssistantById(conversation.assistantId)
+                        GlassCard(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 20.dp)
+                                .clickable {
+                                    navController.navigate(
+                                        Screen.Chat(id = conversation.id.toString())
+                                    )
+                                },
+                            cornerRadius = 20.dp
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                GlowAvatar(
+                                    size = 44.dp,
+                                    modifier = Modifier.padding(3.dp)
+                                ) {
+                                    UIAvatar(
+                                        name = assistant?.name ?: "AI",
+                                        value = assistant?.avatar ?: Avatar.Dummy,
+                                        modifier = Modifier.fillMaxSize()
+                                    )
+                                }
+                                Spacer(modifier = Modifier.width(14.dp))
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = conversation.title.ifBlank { "未命名对话" },
+                                        style = MuranTypography.titleLarge.copy(fontSize = 15.sp)
+                                    )
+                                    Spacer(modifier = Modifier.height(2.dp))
+                                    Text(
+                                        text = "点击继续对话...",
+                                        style = MuranTypography.bodyMedium.copy(
+                                            color = TextTertiary,
+                                            fontSize = 13.sp
+                                        )
+                                    )
+                                }
                             }
                         }
                     }
