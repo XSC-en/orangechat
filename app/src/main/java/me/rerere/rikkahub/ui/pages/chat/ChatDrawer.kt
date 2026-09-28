@@ -842,6 +842,36 @@ private fun DrawerActions(
                 )
             }
         }
+
+        // 工具箱入口
+        Surface(
+            onClick = { navController.navigate(Screen.Toolbox) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 4.dp),
+            shape = MaterialTheme.shapes.medium,
+            color = MaterialTheme.colorScheme.surfaceContainerLow.copy(alpha = drawerItemAlpha),
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp, vertical = 10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                Icon(
+                    imageVector = HugeIcons.Rocket01,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp),
+                    tint = Color(0xFFD8B98A),
+                )
+                Text(
+                    text = "工具箱",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color(0xFFE7CFA8),
+                )
+            }
+        }
     }
 }
 

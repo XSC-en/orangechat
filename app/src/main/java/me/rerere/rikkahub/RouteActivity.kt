@@ -880,6 +880,12 @@ entry<Screen.Extensions> {
                                 )
                             }
 
+                            entry<Screen.Toolbox> {
+                                TwilightToolboxDrawer(
+                                    onDismiss = { backStack.removeLastOrNull() }
+                                )
+                            }
+
                         }
                     )
                     AnimatedVisibility(
@@ -1173,4 +1179,7 @@ sealed interface Screen : NavKey {
 
     @Serializable
     data class Legal(val titleRes: Int, val contentRes: Int) : Screen
+
+    @Serializable
+    data object Toolbox : Screen
 }
