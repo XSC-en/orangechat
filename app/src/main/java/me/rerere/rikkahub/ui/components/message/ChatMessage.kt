@@ -58,6 +58,7 @@ import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.runtime.CompositionLocalProvider
 import me.rerere.rikkahub.ui.theme.MuranVisuals
@@ -421,6 +422,12 @@ private fun MessagePartsBlock(
                                                         overlayEnabled = displaySettings.bubbleImageOverlayEnabled,
                                                         bubbleAlpha = bubbleAlpha,
                                                         onClick = { onUserMessageClick?.invoke() },
+                                                        shape = if (LocalSettings.current.themeId == MuranVisuals.THEME_ID) RoundedCornerShape(
+                                                            topStart = displaySettings.bubbleCornerRadius.dp,
+                                                            topEnd = displaySettings.bubbleCornerRadius.dp,
+                                                            bottomStart = displaySettings.bubbleCornerRadius.dp,
+                                                            bottomEnd = 4.dp
+                                                        ) else null,
                                                     ) {
                                                         MarkdownBlock(
                                                             content = segment.replaceRegexes(
@@ -444,6 +451,12 @@ private fun MessagePartsBlock(
                                             overlayEnabled = displaySettings.bubbleImageOverlayEnabled,
                                             bubbleAlpha = bubbleAlpha,
                                             onClick = { onUserMessageClick?.invoke() },
+                                            shape = if (LocalSettings.current.themeId == MuranVisuals.THEME_ID) RoundedCornerShape(
+                                                topStart = displaySettings.bubbleCornerRadius.dp,
+                                                topEnd = displaySettings.bubbleCornerRadius.dp,
+                                                bottomStart = displaySettings.bubbleCornerRadius.dp,
+                                                bottomEnd = 4.dp
+                                            ) else null,
                                         ) {
                                             MarkdownBlock(
                                                 content = displayText.replaceRegexes(
@@ -474,6 +487,12 @@ private fun MessagePartsBlock(
                                                         brush = if (LocalSettings.current.themeId == MuranVisuals.THEME_ID && displaySettings.assistantBubbleColor == null) MuranVisuals.aiBubble else null,
                                                         overlayEnabled = displaySettings.bubbleImageOverlayEnabled,
                                                         bubbleAlpha = bubbleAlpha,
+                                                        shape = if (LocalSettings.current.themeId == MuranVisuals.THEME_ID) RoundedCornerShape(
+                                                            topStart = 4.dp,
+                                                            topEnd = displaySettings.bubbleCornerRadius.dp,
+                                                            bottomStart = displaySettings.bubbleCornerRadius.dp,
+                                                            bottomEnd = displaySettings.bubbleCornerRadius.dp
+                                                        ) else null,
                                                     ) {
                                                         MarkdownBlock(
                                                             content = segment.replaceRegexes(
@@ -508,6 +527,12 @@ private fun MessagePartsBlock(
                                             brush = if (LocalSettings.current.themeId == MuranVisuals.THEME_ID && displaySettings.assistantBubbleColor == null) MuranVisuals.aiBubble else null,
                                             overlayEnabled = displaySettings.bubbleImageOverlayEnabled,
                                             bubbleAlpha = bubbleAlpha,
+                                            shape = if (LocalSettings.current.themeId == MuranVisuals.THEME_ID) RoundedCornerShape(
+                                                topStart = 4.dp,
+                                                topEnd = displaySettings.bubbleCornerRadius.dp,
+                                                bottomStart = displaySettings.bubbleCornerRadius.dp,
+                                                bottomEnd = displaySettings.bubbleCornerRadius.dp
+                                            ) else null,
                                         ) {
                                             MarkdownBlock(
                                                 content = displayText.replaceRegexes(
@@ -736,6 +761,7 @@ private fun BubbleSurface(
     onClick: (() -> Unit)? = null,
     brush: Brush? = null,
     contentColor: Color? = null,
+    shape: Shape? = null,
     content: @Composable () -> Unit,
 ) {
     val hasImage = imagePath.isNotBlank() && java.io.File(imagePath).exists()
@@ -743,7 +769,7 @@ private fun BubbleSurface(
         Box(
             modifier = Modifier
                 .animateContentSize()
-                .clip(RoundedCornerShape(cornerRadius))
+                .clip(shape ?: RoundedCornerShape(cornerRadius))
                 .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier)
         ) {
             AsyncImage(
@@ -765,8 +791,8 @@ private fun BubbleSurface(
         Box(
             modifier = Modifier
                 .animateContentSize()
-                .clip(RoundedCornerShape(cornerRadius))
-                .background(brush = brush, shape = RoundedCornerShape(cornerRadius))
+                .clip(shape ?: RoundedCornerShape(cornerRadius))
+                .background(brush = brush, shape = shape ?: RoundedCornerShape(cornerRadius))
                 .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier)
         ) {
             CompositionLocalProvider(
@@ -778,7 +804,7 @@ private fun BubbleSurface(
     } else {
         Surface(
             modifier = Modifier.animateContentSize(),
-            shape = RoundedCornerShape(cornerRadius),
+            shape = shape ?: RoundedCornerShape(cornerRadius),
             color = color.copy(alpha = bubbleAlpha),
             onClick = onClick ?: {},
         ) {
