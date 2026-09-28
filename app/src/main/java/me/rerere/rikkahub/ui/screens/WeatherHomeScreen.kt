@@ -60,7 +60,8 @@ fun WeatherHomeScreen(
         try {
             val lat = 29.5630
             val lon = 106.5516
-            val url = "https://api.open-meteo.com/v1/forecast?latitude=$lat&longitude=$lon&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&timezone=Asia/Shanghai"
+            // 走自建服务器反代：open-meteo 直连在国内约 6 秒会超时
+            val url = "http://106.53.203.40/weather/v1/forecast?latitude=$lat&longitude=$lon&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&timezone=Asia/Shanghai"
             val request = Request.Builder().url(url).build()
             val response = client.newCall(request).execute()
             if (response.isSuccessful) {
