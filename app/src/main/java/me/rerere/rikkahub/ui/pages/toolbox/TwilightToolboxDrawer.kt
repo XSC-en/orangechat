@@ -130,7 +130,6 @@ fun TwilightToolboxDrawer(
                             tool = tool,
                             onClick = {
                                 navController.navigate(tool.screen)
-                                onDismiss()
                             }
                         )
                     }
@@ -161,7 +160,6 @@ fun TwilightToolboxDrawer(
                             tool = tool,
                             onClick = {
                                 navController.navigate(tool.screen)
-                                onDismiss()
                             }
                         )
                     }
