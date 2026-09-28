@@ -22,9 +22,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -46,7 +43,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import me.rerere.hugeicons.HugeIcons
+import me.rerere.hugeicons.stroke.Cancel01
 import me.rerere.hugeicons.stroke.Search01
+import me.rerere.rikkahub.Screen
 import me.rerere.rikkahub.ui.context.LocalNavController
 import me.rerere.rikkahub.ui.context.Navigator
 
@@ -116,7 +115,7 @@ fun TwilightToolboxDrawer(
                     modifier = Modifier.size(32.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Filled.Close,
+                        imageVector = HugeIcons.Cancel01,
                         contentDescription = "关闭",
                         tint = Color(0xFF9695A2),
                         modifier = Modifier.size(16.dp)

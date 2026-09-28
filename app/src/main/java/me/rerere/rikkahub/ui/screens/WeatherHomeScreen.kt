@@ -1,6 +1,7 @@
 package me.rerere.rikkahub.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -20,13 +21,14 @@ import com.composables.icons.lucide.Lucide
 import com.composables.icons.lucide.Search
 import me.rerere.rikkahub.Screen
 import me.rerere.rikkahub.data.datastore.Settings
+import me.rerere.rikkahub.data.datastore.getAssistantById
 import me.rerere.rikkahub.data.model.Avatar
 import me.rerere.rikkahub.data.model.Conversation
 import me.rerere.rikkahub.data.repository.ConversationRepository
 import me.rerere.rikkahub.ui.components.CompanionHeader
 import me.rerere.rikkahub.ui.components.GlassCard
 import me.rerere.rikkahub.ui.components.GlowAvatar
-import me.rerere.rikkahub.ui.components.UIAvatar
+import me.rerere.rikkahub.ui.components.ui.UIAvatar
 import me.rerere.rikkahub.ui.components.WeatherCompanionCard
 import me.rerere.rikkahub.ui.context.LocalNavController
 import me.rerere.rikkahub.ui.context.LocalSettings
