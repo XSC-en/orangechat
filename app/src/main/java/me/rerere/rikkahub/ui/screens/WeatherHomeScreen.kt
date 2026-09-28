@@ -48,9 +48,7 @@ fun WeatherHomeScreen(
 ) {
     val client = koinInject<OkHttpClient>()
     val conversationRepository = koinInject<ConversationRepository>()
-    val settings by LocalSettings.current.settingsFlow.collectAsStateWithLifecycle(
-        initialValue = Settings.dummy()
-    )
+    val settings = LocalSettings.current
     val navController = LocalNavController.current
 
     var weather by remember { mutableStateOf<WeatherData?>(null) }
