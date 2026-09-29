@@ -31,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -124,7 +125,7 @@ fun WeatherHomeScreen(
             .fillMaxSize()
             .background(BackgroundGradient)
     ) {
-        val maxWidthPx = maxWidth.toPx()
+        val maxWidthPx = with(LocalDensity.current) { maxWidth.toPx() }
 
         Column(modifier = Modifier.fillMaxSize()) {
             // 1. 顶部栏
@@ -143,7 +144,7 @@ fun WeatherHomeScreen(
                     .weight(1f)
                     .pointerInput(Unit) {
                         detectHorizontalDragGestures(
-                            onDrag = { _, dragAmount ->
+                            onHorizontalDrag = { _, dragAmount ->
                                 pageOffset = (pageOffset + dragAmount).coerceIn(
                                     if (currentPage == 0) -maxWidthPx / 3f else -maxWidthPx * 2 / 3f,
                                     if (currentPage == 0) maxWidthPx / 3f else maxWidthPx * 2 / 3f
