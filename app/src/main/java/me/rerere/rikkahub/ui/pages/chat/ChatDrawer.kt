@@ -63,6 +63,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.collectAsLazyPagingItems
 import kotlinx.coroutines.flow.collectLatest
@@ -185,7 +186,7 @@ fun ChatDrawerContent(
                             val conversation = item.conversation
                             val assistant = settings.assistants.find { it.id == conversation.assistantId }
                             Surface(
-                                onClick = { navigateToChatPage(navController, conversation.id.toString()) },
+                                onClick = { navigateToChatPage(navController, conversation.id) },
                                 modifier = Modifier.fillMaxWidth(),
                                 shape = RoundedCornerShape(12.dp),
                                 color = if (conversation.id == current.id) GlassSurface else Color.Transparent
