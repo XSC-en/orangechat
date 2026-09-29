@@ -92,12 +92,14 @@ import me.rerere.hugeicons.stroke.Zap
 import me.rerere.rikkahub.R
 import me.rerere.rikkahub.Screen
 import me.rerere.rikkahub.data.datastore.Settings
+import me.rerere.rikkahub.data.datastore.getAssistantById
 import me.rerere.rikkahub.data.model.Assistant
 import me.rerere.rikkahub.data.model.Avatar
 import me.rerere.rikkahub.data.model.Conversation
 import me.rerere.rikkahub.data.model.Folder
 import me.rerere.rikkahub.data.repository.ConversationRepository
 import me.rerere.rikkahub.ui.theme.*
+import me.rerere.rikkahub.ui.components.GlowAvatar
 import me.rerere.rikkahub.ui.components.ai.AssistantPicker
 import me.rerere.rikkahub.ui.components.ui.BackupReminderCard
 import me.rerere.rikkahub.ui.components.ui.Greeting
@@ -181,7 +183,7 @@ fun ChatDrawerContent(
                     when (item) {
                         is ConversationListItem.Item -> {
                             val conversation = item.conversation
-                            val assistant = settings.getAssistantById(conversation.assistantId)
+                            val assistant = settings.assistants.find { it.id == conversation.assistantId }
                             Surface(
                                 onClick = { navigateToChatPage(navController, conversation.id.toString()) },
                                 modifier = Modifier.fillMaxWidth(),
