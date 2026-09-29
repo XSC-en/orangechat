@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -15,6 +16,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import me.rerere.hugeicons.HugeIcons
@@ -119,7 +121,7 @@ fun WeatherHomeScreen(
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.spacedBy(14.dp),
-                contentPadding = PaddingValues(horizontal = 20.dp, bottom = 24.dp)
+                contentPadding = PaddingValues(start = 20.dp, end = 20.dp, bottom = 24.dp)
             ) {
                 // 2. 天气陪伴 Card
                 item {
@@ -135,16 +137,16 @@ fun WeatherHomeScreen(
                 // 3. 工具网格（2 列）
                 item {
                     val tools = listOf(
-                        Triple("新对话", Message01, { onNewChat() }),
-                        Triple("助手", Sparkles, { navController.navigate(Screen.Assistant) }),
-                        Triple("翻译", LanguageCircle, { navController.navigate(Screen.Translator) }),
-                        Triple("图片", Image02, { navController.navigate(Screen.ImageGen) }),
-                        Triple("记账", ChartColumn, { navController.navigate(Screen.Accounting) }),
-                        Triple("天气", CloudServer, { navController.navigate(Screen.Weather) }),
-                        Triple("考公", BookOpen01, { navController.navigate(Screen.ExamPrep) }),
-                        Triple("插件", AppStore, { navController.navigate(Screen.PluginMarket) }),
-                        Triple("统计", ChartColumn, { navController.navigate(Screen.Stats) }),
-                        Triple("设置", Settings03, { navController.navigate(Screen.Setting) }),
+                        Triple("新对话", HugeIcons.Message01, { onNewChat() }),
+                        Triple("助手", HugeIcons.Sparkles, { navController.navigate(Screen.Assistant) }),
+                        Triple("翻译", HugeIcons.LanguageCircle, { navController.navigate(Screen.Translator) }),
+                        Triple("图片", HugeIcons.Image02, { navController.navigate(Screen.ImageGen) }),
+                        Triple("记账", HugeIcons.ChartColumn, { navController.navigate(Screen.Accounting) }),
+                        Triple("天气", HugeIcons.CloudServer, { navController.navigate(Screen.Weather) }),
+                        Triple("考公", HugeIcons.BookOpen01, { navController.navigate(Screen.ExamPrep) }),
+                        Triple("插件", HugeIcons.AppStore, { navController.navigate(Screen.PluginMarket) }),
+                        Triple("统计", HugeIcons.ChartColumn, { navController.navigate(Screen.Stats) }),
+                        Triple("设置", HugeIcons.Settings03, { navController.navigate(Screen.Setting) }),
                     )
                     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                         for (i in tools.indices step 2) {
@@ -224,7 +226,7 @@ fun WeatherHomeScreen(
                                     )
                                 }
                                 Icon(
-                                    imageVector = ChevronRight,
+                                    imageVector = HugeIcons.ChevronRight,
                                     contentDescription = null,
                                     tint = TextTertiary,
                                     modifier = Modifier.size(18.dp)
