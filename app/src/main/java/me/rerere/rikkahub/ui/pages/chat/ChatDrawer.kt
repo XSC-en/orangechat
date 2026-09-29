@@ -193,6 +193,12 @@ fun ChatDrawerContent(
                             color = TextTertiary
                         )
                     }
+                    // 昵称编辑按钮
+                    IconButton(onClick = {
+                        // 打开昵称编辑
+                    }) {
+                        Icon(HugeIcons.PencilEdit01, null, tint = TextSecondary, modifier = Modifier.size(18.dp))
+                    }
                 }
             }
 
