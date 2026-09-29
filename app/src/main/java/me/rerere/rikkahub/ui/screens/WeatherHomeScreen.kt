@@ -84,6 +84,7 @@ fun WeatherHomeScreen(
     val navController = LocalNavController.current
 
     var weather by remember { mutableStateOf<WeatherData?>(null) }
+    var weatherError by remember { mutableStateOf<String?>(null) }
     var recentConversations by remember { mutableStateOf<List<Conversation>>(emptyList()) }
     var currentPage by remember { mutableIntStateOf(0) }
     var pageOffset by remember { mutableFloatStateOf(0f) }
