@@ -51,6 +51,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.statusBarsPadding
 import me.rerere.rikkahub.ui.theme.MuranVisuals
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -546,7 +547,7 @@ private fun TopBar(
                     if (conversation.messageNodes.isNotEmpty()) {
                         titleState.open(conversation.title)
                     } else {
-                        toaster.show(stringResource(R.string.chat_page_edit_title_warning), type = ToastType.Warning)
+                        toaster.show(LocalContext.current.getString(R.string.chat_page_edit_title_warning), type = ToastType.Warning)
                     }
                 },
                 color = if (isMuran) Color(0xFFF0E8DC) else Color.Transparent,
