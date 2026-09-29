@@ -148,6 +148,54 @@ fun ChatDrawerContent(
                 .padding(12.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
+
+            // 用户头像和昵称
+            Surface(
+                onClick = {
+                    // 点击头像可以更换
+                },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                color = GlassSurface
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    GlowAvatar(size = 44.dp) {
+                        UIAvatar(
+                            name = settings.displaySetting.userNickname.ifBlank { "我" },
+                            value = settings.displaySetting.userAvatar,
+                            onUpdate = { newAvatar ->
+                                vm.updateSettings(
+                                    settings.copy(
+                                        displaySetting = settings.displaySetting.copy(
+                                            userAvatar = newAvatar
+                                        )
+                                    )
+                                )
+                            },
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = settings.displaySetting.userNickname.ifBlank { "我" },
+                            style = MuranTypography.titleLarge.copy(fontSize = 16.sp),
+                            color = TextPrimary
+                        )
+                        Text(
+                            text = "点击更换头像",
+                            style = MuranTypography.bodySmall.copy(fontSize = 12.sp),
+                            color = TextTertiary
+                        )
+                    }
+                }
+            }
+
             // 搜索框
             OutlinedTextField(
                 value = searchQuery,

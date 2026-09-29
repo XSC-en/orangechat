@@ -106,8 +106,13 @@ fun WeatherHomeScreen(
                     description = weatherCodeToDescription(current.getInt("weather_code")),
                     icon = weatherCodeToEmoji(current.getInt("weather_code"))
                 )
+                weatherError = null
+            } else {
+                weatherError = "天气服务暂时不可用"
             }
-        } catch (_: Exception) { }
+        } catch (_: Exception) {
+            weatherError = "无法获取天气数据"
+        }
     }
 
     LaunchedEffect(settings.assistantId) {
