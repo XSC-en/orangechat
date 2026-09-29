@@ -762,7 +762,7 @@ private fun BubbleSurface(
     brush: Brush? = null,
     contentColor: Color? = null,
     shape: Shape? = null,
-    border: Brush? = null,
+    border: Color? = null,
     borderWidth: Dp = 0.dp,
     content: @Composable () -> Unit,
 ) {
@@ -794,8 +794,8 @@ private fun BubbleSurface(
         val isMuran = LocalSettings.current.themeId == MuranVisuals.THEME_ID
         val effectiveBorder = if (isMuran && border == null) {
             when {
-                brush == MuranVisuals.userBubble -> MuranVisuals.userBubbleBorder
-                brush == MuranVisuals.aiBubble -> MuranVisuals.aiBubbleBorder
+                brush == MuranVisuals.userBubble -> Color(0xFFD4AD7A)
+                brush == MuranVisuals.aiBubble -> Color(0xFFE8D5C8)
                 else -> null
             }
         } else border
