@@ -17,8 +17,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.composables.icons.lucide.Lucide
-import com.composables.icons.lucide.Search
+import me.rerere.hugeicons.HugeIcons
+import me.rerere.hugeicons.stroke.Message01
+import me.rerere.hugeicons.stroke.Sparkles
+import me.rerere.hugeicons.stroke.LanguageCircle
+import me.rerere.hugeicons.stroke.Image02
+import me.rerere.hugeicons.stroke.ChartColumn
+import me.rerere.hugeicons.stroke.CloudServer
+import me.rerere.hugeicons.stroke.BookOpen01
+import me.rerere.hugeicons.stroke.AppStore
+import me.rerere.hugeicons.stroke.Settings03
+import me.rerere.hugeicons.stroke.ChevronRight
 import me.rerere.rikkahub.Screen
 import me.rerere.rikkahub.data.datastore.Settings
 import me.rerere.rikkahub.data.datastore.getAssistantById
@@ -126,16 +135,16 @@ fun WeatherHomeScreen(
                 // 3. 工具网格（2 列）
                 item {
                     val tools = listOf(
-                        Triple("新对话", Lucide.MessageCircle, { onNewChat() }),
-                        Triple("助手", Lucide.Bot, { navController.navigate(Screen.Assistant) }),
-                        Triple("翻译", Lucide.Languages, { navController.navigate(Screen.Translator) }),
-                        Triple("图片", Lucide.Image, { navController.navigate(Screen.ImageGen) }),
-                        Triple("记账", Lucide.Wallet, { navController.navigate(Screen.Accounting) }),
-                        Triple("天气", Lucide.Cloud, { navController.navigate(Screen.Weather) }),
-                        Triple("考公", Lucide.BookOpen, { navController.navigate(Screen.ExamPrep) }),
-                        Triple("插件", Lucide.Puzzle, { navController.navigate(Screen.PluginMarket) }),
-                        Triple("统计", Lucide.BarChart3, { navController.navigate(Screen.Stats) }),
-                        Triple("设置", Lucide.Settings, { navController.navigate(Screen.Setting) }),
+                        Triple("新对话", Message01, { onNewChat() }),
+                        Triple("助手", Sparkles, { navController.navigate(Screen.Assistant) }),
+                        Triple("翻译", LanguageCircle, { navController.navigate(Screen.Translator) }),
+                        Triple("图片", Image02, { navController.navigate(Screen.ImageGen) }),
+                        Triple("记账", ChartColumn, { navController.navigate(Screen.Accounting) }),
+                        Triple("天气", CloudServer, { navController.navigate(Screen.Weather) }),
+                        Triple("考公", BookOpen01, { navController.navigate(Screen.ExamPrep) }),
+                        Triple("插件", AppStore, { navController.navigate(Screen.PluginMarket) }),
+                        Triple("统计", ChartColumn, { navController.navigate(Screen.Stats) }),
+                        Triple("设置", Settings03, { navController.navigate(Screen.Setting) }),
                     )
                     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                         for (i in tools.indices step 2) {
@@ -144,16 +153,16 @@ fun WeatherHomeScreen(
                                 horizontalArrangement = Arrangement.spacedBy(10.dp)
                             ) {
                                 ToolCard(
-                                    title = tools[i].first,
-                                    icon = tools[i].second,
-                                    onClick = tools[i].third,
+                                    title = tools[i].component1(),
+                                    icon = tools[i].component2(),
+                                    onClick = tools[i].component3(),
                                     modifier = Modifier.weight(1f)
                                 )
                                 if (i + 1 < tools.size) {
                                     ToolCard(
-                                        title = tools[i + 1].first,
-                                        icon = tools[i + 1].second,
-                                        onClick = tools[i + 1].third,
+                                        title = tools[i + 1].component1(),
+                                        icon = tools[i + 1].component2(),
+                                        onClick = tools[i + 1].component3(),
                                         modifier = Modifier.weight(1f)
                                     )
                                 }
@@ -215,7 +224,7 @@ fun WeatherHomeScreen(
                                     )
                                 }
                                 Icon(
-                                    imageVector = Lucide.ChevronRight,
+                                    imageVector = ChevronRight,
                                     contentDescription = null,
                                     tint = TextTertiary,
                                     modifier = Modifier.size(18.dp)
