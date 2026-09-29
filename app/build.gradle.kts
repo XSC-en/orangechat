@@ -78,10 +78,14 @@ android {
         // 避免 ~/.android/debug.keystore 因机器不同导致 adb install -r 覆盖安装失败（Failure [-99]）。
         // keystore 参数与 Android 默认 debug 签名一致：alias=androiddebugkey, password=android。
         getByName("debug") {
-            storeFile = file("debug.keystore")
-            storePassword = "android"
-            keyAlias = "androiddebugkey"
-            keyPassword = "android"
+            val debugKeystore = file("debug.keystore")
+            if (debugKeystore.exists()) {
+                storeFile = debugKeystore
+                storePassword = "android"
+                keyAlias = "androiddebugkey"
+                keyPassword = "android"
+            }
+            // 如果 debug.keystore 不存在，使用默认的 Android debug 签名
         }
     }
 
