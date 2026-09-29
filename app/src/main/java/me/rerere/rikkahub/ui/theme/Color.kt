@@ -17,56 +17,58 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 
-// ===== Muran Theme Colors → 手帐日记风 =====
+// ===== Muran Theme Colors → 暮暗紫金 =====
 
 // Background
-val BackgroundMain = Color(0xFFF5EFE6)
-val BackgroundDeep = Color(0xFFEDE4D8)
-val TwilightPurpleGlow = Color(0x14B07D4F)
+val BackgroundMain = Color(0xFF202536)
+val BackgroundDeep = Color(0xFF1A1E2E)
+val TwilightPurpleGlow = Color(0x14A89BCB)
 
-// Surface
-val SurfaceLevel1 = Color(0xFFFFFBF5)
-val SurfaceLevel2 = Color(0xFFF7F0E7)
-val GlassSurface = Color(0x1AE8C9A0)
-val GlassSurfaceLight = Color(0x0FE8C9A0)
-val GlassBorder = Color(0x24C8A882)
-val GlassHighlight = Color(0xFFFFFFFF)
+// Surface（半透明磨砂）
+val SurfaceLevel1 = Color(0x26A89BCB)
+val SurfaceLevel2 = Color(0x1A1E2E)
+val GlassSurface = Color(0x33A89BCB)
+val GlassSurfaceLight = Color(0x1AA89BCB)
+val GlassBorder = Color(0x44A89BCB)
+val GlassHighlight = Color(0x33D8B98A)
 
-// Primary Warm Amber（原暖金 → 复古琥珀）
-val WarmGoldMain = Color(0xFFE8C9A0)
-val WarmGoldLight = Color(0xFFF0D9BE)
-val WarmGoldDark = Color(0xFFB07D4F)
+// Primary Warm Gold（暮光金）
+val WarmGoldMain = Color(0xFFD8B98A)
+val WarmGoldLight = Color(0xFFE8D5B8)
+val WarmGoldDark = Color(0xFFB8956A)
 
-// Twilight Purple → 陶土棕
-val TwilightPurpleMain = Color(0xFFC8A58C)
-val TwilightPurpleLight = Color(0xFFE0C8B6)
-val TwilightPurpleDark = Color(0xFF8B6B5A)
+// Twilight Purple（暮紫）
+val TwilightPurpleMain = Color(0xFFA89BCB)
+val TwilightPurpleLight = Color(0xFFC4B8E0)
+val TwilightPurpleDark = Color(0xFF7A6B9A)
 
 // Text
-val TextPrimary = Color(0xFF2C2218)
-val TextSecondary = Color(0xFF5A4C3E)
-val TextTertiary = Color(0xFF8C7E6E)
-val TextDisabled = Color(0xFFB0A498)
+val TextPrimary = Color(0xFFE8E4F0)
+val TextSecondary = Color(0xFFB8B0C8)
+val TextTertiary = Color(0xFF807888)
+val TextDisabled = Color(0xFF605868)
 
 // Gradients
-val TwilightGradient = Brush.linearGradient(
-    colors = listOf(Color(0xFFFAF6F0), Color(0xFFF0E8DC), Color(0xFFE4DAD0))
+val TwilightGradient = Brush.verticalGradient(
+    colors = listOf(Color(0xFF202536), Color(0xFF1A1E2E), Color(0xFF151823))
 )
 val SunsetGradient = Brush.linearGradient(
-    colors = listOf(Color(0xFFE8D5C8), Color(0xFFF0D9BE), Color(0xFFD4AD7A))
+    colors = listOf(Color(0xFFD8B98A), Color(0xFFA89BCB), Color(0xFF7A6B9A))
 )
 val SoftPurpleGradient = Brush.linearGradient(
-    colors = listOf(Color(0xFFE8D5C8), Color(0xFFD4B8A0), Color(0xFFC8A58C))
+    colors = listOf(Color(0xFFA89BCB), Color(0xFF8B7BAA), Color(0xFF6B5B8A))
 )
 val BackgroundGradient = Brush.verticalGradient(
-    colors = listOf(Color(0xFFFAF6F0), Color(0xFFF5EFE6), Color(0xFFEDE4D8))
+    colors = listOf(Color(0xFF202536), Color(0xFF1A1E2E), Color(0xFF151823))
 )
 val UserBubbleGradient = Brush.horizontalGradient(
-    colors = listOf(WarmGoldMain, Color(0xFFD4AD7A))
+    colors = listOf(WarmGoldMain, Color(0xFFC4A265))
 )
 
 // ===== Extend Colors =====
 
+data class ExtendColors(
+    val red1: Color,
 data class ExtendColors(
     val red1: Color,
     val red2: Color,

@@ -2,7 +2,18 @@ package me.rerere.rikkahub.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Icon
@@ -10,26 +21,30 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import me.rerere.hugeicons.HugeIcons
-import me.rerere.hugeicons.stroke.Message01
-import me.rerere.hugeicons.stroke.Sparkles
-import me.rerere.hugeicons.stroke.LanguageCircle
-import me.rerere.hugeicons.stroke.Image02
+import me.rerere.hugeicons.stroke.ArrowRight01
+import me.rerere.hugeicons.stroke.BookOpen01
 import me.rerere.hugeicons.stroke.ChartColumn
 import me.rerere.hugeicons.stroke.CloudServer
-import me.rerere.hugeicons.stroke.BookOpen01
-import me.rerere.hugeicons.stroke.AppStore
+import me.rerere.hugeicons.stroke.Image02
+import me.rerere.hugeicons.stroke.LanguageCircle
+import me.rerere.hugeicons.stroke.Message01
 import me.rerere.hugeicons.stroke.Settings03
-import me.rerere.hugeicons.stroke.ArrowRight01
+import me.rerere.hugeicons.stroke.Sparkles
 import me.rerere.rikkahub.Screen
 import me.rerere.rikkahub.data.datastore.Settings
 import me.rerere.rikkahub.data.datastore.getAssistantById
@@ -66,12 +81,13 @@ fun WeatherHomeScreen(
 
     var weather by remember { mutableStateOf<WeatherData?>(null) }
     var recentConversations by remember { mutableStateOf<List<Conversation>>(emptyList()) }
+    var currentPage by remember { mutableIntStateOf(0) }
+    var pageOffset by remember { mutableFloatStateOf(0f) }
 
     LaunchedEffect(Unit) {
         try {
             val lat = 29.5630
             val lon = 106.5516
-            // 走自建服务器反代：open-meteo 直连在国内约 6 秒会超时
             val url = "http://106.53.203.40/weather/v1/forecast?latitude=$lat&longitude=$lon&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&timezone=Asia/Shanghai"
             val request = Request.Builder().url(url).build()
             val response = client.newCall(request).execute()
@@ -103,11 +119,13 @@ fun WeatherHomeScreen(
         }
     }
 
-    Box(
+    BoxWithConstraints(
         modifier = Modifier
             .fillMaxSize()
             .background(BackgroundGradient)
     ) {
+        val maxWidthPx = maxWidth.toPx()
+
         Column(modifier = Modifier.fillMaxSize()) {
             // 1. 顶部栏
             CompanionHeader(
@@ -116,56 +134,111 @@ fun WeatherHomeScreen(
                 onMenuClick = onOpenDrawer
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(14.dp),
-                contentPadding = PaddingValues(start = 20.dp, end = 20.dp, bottom = 24.dp)
-            ) {
-                // 2. 天气陪伴 Card
-                item {
-                    WeatherCompanionCard(
-                        location = "重庆",
-                        weatherState = weather?.description ?: "暮色加载中…",
-                        temperature = weather?.let { "${it.temp.toInt()}°C" } ?: "--",
-                        whisperText = weather?.let { "${it.icon} 湿度 ${it.humidity}% · 风速 ${it.windSpeed} m/s" }
-                            ?: "夜幕降临时，适合把积攒了一天的思绪交给我。"
-                    )
-                }
-
-                // 3. 工具网格（2 列）
-                item {
-                    val tools = listOf(
-                        Triple("新对话", HugeIcons.Message01, { onNewChat() }),
-                        Triple("助手", HugeIcons.Sparkles, { navController.navigate(Screen.Assistant) }),
-                        Triple("翻译", HugeIcons.LanguageCircle, { navController.navigate(Screen.Translator) }),
-                        Triple("图片", HugeIcons.Image02, { navController.navigate(Screen.ImageGen) }),
-                        Triple("记账", HugeIcons.ChartColumn, { navController.navigate(Screen.Accounting) }),
-                        Triple("天气", HugeIcons.CloudServer, { navController.navigate(Screen.Weather) }),
-                        Triple("考公", HugeIcons.BookOpen01, { navController.navigate(Screen.ExamPrep) }),
-                        Triple("插件", HugeIcons.AppStore, { navController.navigate(Screen.PluginMarket) }),
-                        Triple("统计", HugeIcons.ChartColumn, { navController.navigate(Screen.Stats) }),
-                        Triple("设置", HugeIcons.Settings03, { navController.navigate(Screen.Setting) }),
-                    )
-                    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                        for (i in tools.indices step 2) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(10.dp)
-                            ) {
-                                ToolCard(
-                                    title = tools[i].component1(),
-                                    icon = tools[i].component2(),
-                                    onClick = tools[i].component3(),
-                                    modifier = Modifier.weight(1f)
+            // 2. 双页滑动容器
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .pointerInput(Unit) {
+                        detectHorizontalDragGestures(
+                            onDrag = { _, dragAmount ->
+                                pageOffset = (pageOffset + dragAmount).coerceIn(
+                                    if (currentPage == 0) -maxWidthPx / 3f else -maxWidthPx * 2 / 3f,
+                                    if (currentPage == 0) maxWidthPx / 3f else maxWidthPx * 2 / 3f
                                 )
-                                if (i + 1 < tools.size) {
-                                    ToolCard(
-                                        title = tools[i + 1].component1(),
-                                        icon = tools[i + 1].component2(),
-                                        onClick = tools[i + 1].component3(),
-                                        modifier = Modifier.weight(1f)
+                            },
+                            onDragEnd = {
+                                if (pageOffset > maxWidthPx / 4) {
+                                    currentPage = 0
+                                } else if (pageOffset < -maxWidthPx / 4) {
+                                    currentPage = 1
+                                }
+                                pageOffset = 0f
+                            }
+                        )
+                    }
+            ) {
+                // Page 1: 天气 + 最近对话
+                val page1X = when (currentPage) {
+                    0 -> pageOffset
+                    1 -> -maxWidthPx + pageOffset
+                    else -> pageOffset
+                }
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .offset { androidx.compose.ui.unit.IntOffset(page1X.toInt(), 0) }
+                        .padding(horizontal = 20.dp, bottom = 24.dp),
+                    verticalArrangement = Arrangement.spacedBy(14.dp)
+                ) {
+                    item {
+                        WeatherCompanionCard(
+                            location = "重庆",
+                            weatherState = weather?.description ?: "暮色加载中…",
+                            temperature = weather?.let { "${it.temp.toInt()}°C" } ?: "--",
+                            whisperText = weather?.let { "${it.icon} 湿度 ${it.humidity}% · 风速 ${it.windSpeed} m/s" }
+                                ?: "夜幕降临时，适合把积攒了一天的思绪交给我。"
+                        )
+                    }
+
+                    item {
+                        Text(
+                            text = "最近对话",
+                            style = MuranTypography.titleLarge.copy(
+                                fontSize = 15.sp,
+                                color = TextSecondary
+                            ),
+                            modifier = Modifier.padding(vertical = 4.dp)
+                        )
+                    }
+                    if (recentConversations.isEmpty()) {
+                        item {
+                            Text(
+                                text = "还没有对话，点击「新对话」开始",
+                                style = MuranTypography.bodyMedium.copy(color = TextTertiary, fontSize = 13.sp),
+                                modifier = Modifier.padding(vertical = 8.dp)
+                            )
+                        }
+                    } else {
+                        items(recentConversations) { conversation ->
+                            val assistant = settings.getAssistantById(conversation.assistantId)
+                            GlassCard(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        navController.navigate(
+                                            Screen.Chat(id = conversation.id.toString())
+                                        )
+                                    },
+                                cornerRadius = 16.dp
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(12.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    GlowAvatar(size = 36.dp, modifier = Modifier.padding(2.dp)) {
+                                        UIAvatar(
+                                            name = assistant?.name ?: "AI",
+                                            value = assistant?.avatar ?: Avatar.Dummy,
+                                            modifier = Modifier.fillMaxSize()
+                                        )
+                                    }
+                                    Spacer(modifier = Modifier.width(10.dp))
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(
+                                            text = conversation.title.ifBlank { "未命名对话" },
+                                            style = MuranTypography.titleLarge.copy(fontSize = 14.sp)
+                                        )
+                                    }
+                                    Icon(
+                                        imageVector = HugeIcons.ArrowRight01,
+                                        contentDescription = null,
+                                        tint = TextTertiary,
+                                        modifier = Modifier.size(18.dp)
                                     )
                                 }
                             }
@@ -173,65 +246,132 @@ fun WeatherHomeScreen(
                     }
                 }
 
-                // 4. 最近对话（小卡片）
-                item {
-                    Text(
-                        text = "最近对话",
-                        style = MuranTypography.titleLarge.copy(
-                            fontSize = 15.sp,
-                            color = TextSecondary
-                        ),
-                        modifier = Modifier.padding(vertical = 4.dp)
-                    )
+                // Page 2: 工具分类
+                val page2X = when (currentPage) {
+                    0 -> maxWidthPx + pageOffset
+                    1 -> pageOffset
+                    else -> maxWidthPx + pageOffset
                 }
-                if (recentConversations.isEmpty()) {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .offset { androidx.compose.ui.unit.IntOffset(page2X.toInt(), 0) }
+                        .padding(horizontal = 20.dp, bottom = 24.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
                     item {
-                        Text(
-                            text = "还没有对话，点击「新对话」开始",
-                            style = MuranTypography.bodyMedium.copy(color = TextTertiary, fontSize = 13.sp),
-                            modifier = Modifier.padding(vertical = 8.dp)
+                        ToolCategoryCard(
+                            title = "核心",
+                            items = listOf(
+                                ToolItem("新对话", HugeIcons.Message01) { onNewChat() },
+                                ToolItem("助手", HugeIcons.Sparkles) { navController.navigate(Screen.Assistant) }
+                            )
                         )
                     }
-                } else {
-                    items(recentConversations) { conversation ->
-                        val assistant = settings.getAssistantById(conversation.assistantId)
-                        GlassCard(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable {
-                                    navController.navigate(
-                                        Screen.Chat(id = conversation.id.toString())
-                                    )
-                                },
-                            cornerRadius = 16.dp
+                    item {
+                        ToolCategoryCard(
+                            title = "创作",
+                            items = listOf(
+                                ToolItem("翻译", HugeIcons.LanguageCircle) { navController.navigate(Screen.Translator) },
+                                ToolItem("图片", HugeIcons.Image02) { navController.navigate(Screen.ImageGen) }
+                            )
+                        )
+                    }
+                    item {
+                        ToolCategoryCard(
+                            title = "生活",
+                            items = listOf(
+                                ToolItem("记账", HugeIcons.ChartColumn) { navController.navigate(Screen.Accounting) },
+                                ToolItem("天气", HugeIcons.CloudServer) { navController.navigate(Screen.Weather) }
+                            )
+                        )
+                    }
+                    item {
+                        ToolCategoryCard(
+                            title = "学习与系统",
+                            items = listOf(
+                                ToolItem("考公", HugeIcons.BookOpen01) { navController.navigate(Screen.ExamPrep) },
+                                ToolItem("插件", HugeIcons.AppStore) { navController.navigate(Screen.PluginMarket) },
+                                ToolItem("统计", HugeIcons.ChartColumn) { navController.navigate(Screen.Stats) },
+                                ToolItem("设置", HugeIcons.Settings03) { navController.navigate(Screen.Setting) }
+                            )
+                        )
+                    }
+                }
+            }
+
+            // 3. 页面指示器
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                repeat(2) { index ->
+                    Box(
+                        modifier = Modifier
+                            .padding(4.dp)
+                            .size(if (currentPage == index) 24.dp else 8.dp, 8.dp)
+                            .clip(androidx.compose.foundation.shape.CircleShape)
+                            .background(
+                                if (currentPage == index) WarmGoldMain else TwilightPurpleMain.copy(alpha = 0.4f)
+                            )
+                            .clickable { currentPage = index }
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ToolCategoryCard(
+    title: String,
+    items: List<ToolItem>
+) {
+    GlassCard(
+        modifier = Modifier.fillMaxWidth(),
+        cornerRadius = 20.dp
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Text(
+                text = title,
+                style = MuranTypography.titleLarge.copy(
+                    fontSize = 14.sp,
+                    color = WarmGoldMain
+                )
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                items.forEach { item ->
+                    Box(
+                        modifier = Modifier
+                            .size(72.dp)
+                            .clip(androidx.compose.foundation.shape.CircleShape)
+                            .background(GlassSurface)
+                            .clickable(item.onClick),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(6.dp)
                         ) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(12.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                GlowAvatar(size = 36.dp, modifier = Modifier.padding(2.dp)) {
-                                    UIAvatar(
-                                        name = assistant?.name ?: "AI",
-                                        value = assistant?.avatar ?: Avatar.Dummy,
-                                        modifier = Modifier.fillMaxSize()
-                                    )
-                                }
-                                Spacer(modifier = Modifier.width(10.dp))
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text(
-                                        text = conversation.title.ifBlank { "未命名对话" },
-                                        style = MuranTypography.titleLarge.copy(fontSize = 14.sp)
-                                    )
-                                }
-                                Icon(
-                                    imageVector = HugeIcons.ArrowRight01,
-                                    contentDescription = null,
-                                    tint = TextTertiary,
-                                    modifier = Modifier.size(18.dp)
-                                )
-                            }
+                            Icon(
+                                imageVector = item.icon,
+                                contentDescription = item.title,
+                                tint = WarmGoldMain,
+                                modifier = Modifier.size(28.dp)
+                            )
+                            Text(
+                                text = item.title,
+                                style = MuranTypography.bodyMedium.copy(fontSize = 11.sp),
+                                color = TextSecondary
+                            )
                         }
                     }
                 }
@@ -239,36 +379,9 @@ fun WeatherHomeScreen(
         }
     }
 }
-@Composable
-private fun ToolCard(
-    title: String,
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    GlassCard(
-        modifier = modifier,
-        cornerRadius = 18.dp,
-        onClick = onClick
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 18.dp, horizontal = 12.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = title,
-                tint = Color(0xFFB07D4F),
-                modifier = Modifier.size(26.dp)
-            )
-            Text(
-                text = title,
-                style = MuranTypography.bodyMedium.copy(fontSize = 12.sp),
-                color = Color(0xFF5A4C3E)
-            )
-        }
-    }
-}
+
+private data class ToolItem(
+    val title: String,
+    val icon: ImageVector,
+    val onClick: () -> Unit
+)

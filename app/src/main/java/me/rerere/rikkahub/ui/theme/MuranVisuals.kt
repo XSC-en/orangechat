@@ -6,22 +6,22 @@ import androidx.compose.ui.graphics.Color
 object MuranVisuals {
     const val THEME_ID = "muran"
 
-    // 页面温暖纸张渐变
+    // 页面背景：暗夜蓝紫渐变
     val twilightBackground = Brush.verticalGradient(
-        listOf(Color(0xFFFAF6F0), Color(0xFFF5EFE6), Color(0xFFEDE4D8))
+        listOf(Color(0xFF202536), Color(0xFF1A1E2E), Color(0xFF151823))
     )
 
-    // 用户气泡：温暖琥珀渐变（玻璃磨砂质感：半透明暖色 + 内部光泽）
+    // 用户气泡：暮光金渐变（玻璃磨砂）
     val userBubble = Brush.horizontalGradient(
-        listOf(Color(0xFFE8C9A0), Color(0xFFD4AD7A))
+        listOf(Color(0xFFD8B98A), Color(0xFFC4A265))
     )
-    val userBubbleContent = Color(0xFF3A2A14)
-    val userBubbleBorder = Color(0xFFD4AD7A)
+    val userBubbleContent = Color(0xFF1A1E2E)
+    val userBubbleBorder = Color(0xFFD8B98A)
 
-    // AI 气泡：浅米色卡片（玻璃磨砂：半透明白底 + 暖边）
+    // AI 气泡：暮紫半透明（玻璃磨砂）
     val aiBubble = Brush.verticalGradient(
-        listOf(Color(0xFFFFFFFF), Color(0xFFF9F3EA))
+        listOf(Color(0x33A89BCB), Color(0x1A1E2E))
     )
-    val aiBubbleContent = Color(0xFF2C2218)
-    val aiBubbleBorder = Color(0xFFE8D5C8)
+    val aiBubbleContent = Color(0xFFE8E4F0)
+    val aiBubbleBorder = Color(0xFFA89BCB)
 }

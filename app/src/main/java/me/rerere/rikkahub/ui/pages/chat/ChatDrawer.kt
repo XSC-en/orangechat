@@ -125,210 +125,102 @@ fun ChatDrawerContent(
 ) {
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
-    val toaster = LocalToaster.current
-    val isPlayStore = rememberIsPlayStoreVersion()
     val repo = koinInject<ConversationRepository>()
 
-    val activity = context as ComponentActivity
-    val drawerVm: ChatDrawerVM = koinViewModel(viewModelStoreOwner = activity)
+    val drawerVm: ChatDrawerVM = koinViewModel(viewModelStoreOwner = context as ComponentActivity)
 
     val conversations = drawerVm.conversations.collectAsLazyPagingItems()
-    val folders by drawerVm.folders.collectAsStateWithLifecycle()
-    val selectedFolderId by drawerVm.selectedFolderId.collectAsStateWithLifecycle()
-    val conversationListState = rememberLazyListState(
-        initialFirstVisibleItemIndex = drawerVm.scrollIndex,
-        initialFirstVisibleItemScrollOffset = drawerVm.scrollOffset,
-    )
-
-    LaunchedEffect(conversationListState) {
-        snapshotFlow {
-            conversationListState.firstVisibleItemIndex to
-                conversationListState.firstVisibleItemScrollOffset
-        }
-            .distinctUntilChanged()
-            .collectLatest { (index, offset) ->
-                drawerVm.saveScrollPosition(index, offset)
-            }
-    }
-
-    val conversationJobs by vm.conversationJobs.collectAsStateWithLifecycle(
-        initialValue = emptyMap(),
-    )
-
-    // 昵称编辑状态
-    val nicknameEditState = useEditState<String> { newNickname ->
-        vm.updateSettings(
-            settings.copy(
-                displaySetting = settings.displaySetting.copy(
-                    userNickname = newNickname
-                )
-            )
-        )
-    }
-
-    // 移动对话状态
-    var showMoveToAssistantSheet by remember { mutableStateOf(false) }
-    var conversationToMove by remember { mutableStateOf<Conversation?>(null) }
-    val bottomSheetState = rememberModalBottomSheetState()
-
-    // 文件夹相关状态
-    var showMoveToFolderSheet by remember { mutableStateOf(false) }
-    var conversationToMoveFolder by remember { mutableStateOf<Conversation?>(null) }
-    val folderSheetState = rememberModalBottomSheetState()
-    var showCreateFolderDialog by remember { mutableStateOf(false) }
-    var folderToRename by remember { mutableStateOf<Folder?>(null) }
-    var folderToDelete by remember { mutableStateOf<Folder?>(null) }
-
-    // Menu popup 状态
-    var showMenuPopup by remember { mutableStateOf(false) }
+    var searchQuery by remember { mutableStateOf("") }
 
     ModalDrawerSheet(
         modifier = Modifier.width(300.dp),
-        drawerContainerColor = androidx.compose.ui.graphics.Color(0xFFF5EFE6)
+        drawerContainerColor = BackgroundDeep.copy(alpha = 0.95f)
     ) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            // 侧边栏背景图（最底层）
-            val drawerBgPath = settings.displaySetting.drawerBackgroundPath
-            if (drawerBgPath.isNotEmpty()) {
-                val bgFile = java.io.File(drawerBgPath)
-                if (bgFile.exists()) {
-                    val bgBitmap = remember(drawerBgPath) {
-                        BitmapFactory.decodeFile(drawerBgPath)
-                    }
-                    if (bgBitmap != null) {
-                        Image(
-                            bitmap = bgBitmap.asImageBitmap(),
-                            contentDescription = null,
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .alpha(0.15f),
-                            contentScale = ContentScale.Crop,
-                        )
-                    }
-                }
-            }
-
-            Column(
-                modifier = Modifier.padding(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-            if (settings.displaySetting.showUpdates && !isPlayStore) {
-                UpdateCard(vm)
-            }
-
-            BackupReminderCard(
-                settings = settings,
-                onClick = { navController.navigate(Screen.Backup) },
-            )
-
-            // 用户头像和昵称自定义区域
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 8.dp, vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-            ) {
-                UIAvatar(
-                    name = settings.displaySetting.userNickname.ifBlank { stringResource(R.string.user_default_name) },
-                    value = settings.displaySetting.userAvatar,
-                    onUpdate = { newAvatar ->
-                        vm.updateSettings(
-                            settings.copy(
-                                displaySetting = settings.displaySetting.copy(
-                                    userAvatar = newAvatar
-                                )
-                            )
-                        )
-                    },
-                    modifier = Modifier.size(50.dp),
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            // 搜索框
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
+                modifier = Modifier.fillMaxWidth(),
+                placeholder = { Text("搜索对话…", color = TextTertiary) },
+                leadingIcon = { Icon(HugeIcons.Search01, null, tint = TextSecondary) },
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = WarmGoldMain,
+                    unfocusedBorderColor = TwilightPurpleMain,
+                    focusedTextColor = TextPrimary,
+                    unfocusedTextColor = TextPrimary,
+                    cursorColor = WarmGoldMain
                 )
+            )
 
-                Column(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(2.dp),
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp),
-                    ) {
-                        Text(
-                            text = settings.displaySetting.userNickname.ifBlank { stringResource(R.string.user_default_name) },
-                            style = MaterialTheme.typography.titleMedium,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier.clickable {
-                                nicknameEditState.open(settings.displaySetting.userNickname)
-                            }
-                        )
-
-                        Icon(
-                            imageVector = HugeIcons.PencilEdit01,
-                            contentDescription = "Edit",
-                            modifier = Modifier
-                                .onClick {
-                                    nicknameEditState.open(settings.displaySetting.userNickname)
-                                }
-                                .size(LocalTextStyle.current.fontSize.toDp())
-                        )
+            // 对话列表
+            LazyColumn(
+                modifier = Modifier.fillMaxWidth().weight(1f),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                val filtered = if (searchQuery.isBlank()) {
+                    conversations.itemSnapshotList.items
+                } else {
+                    conversations.itemSnapshotList.items.filter { item ->
+                        when (item) {
+                            is ConversationListItem.Item -> item.conversation.title.contains(searchQuery, ignoreCase = true)
+                            else -> false
+                        }
                     }
-                    Greeting(
-                        style = MaterialTheme.typography.labelMedium,
-                    )
+                }
+                
+                items(filtered) { item ->
+                    when (item) {
+                        is ConversationListItem.Item -> {
+                            val conversation = item.conversation
+                            val assistant = settings.getAssistantById(conversation.assistantId)
+                            Surface(
+                                onClick = { navigateToChatPage(navController, conversation.id.toString()) },
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(12.dp),
+                                color = if (conversation.id == current.id) GlassSurface else Color.Transparent
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 12.dp, vertical = 10.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                                ) {
+                                    GlowAvatar(size = 32.dp) {
+                                        UIAvatar(
+                                            name = assistant?.name ?: "AI",
+                                            value = assistant?.avatar ?: Avatar.Dummy,
+                                            modifier = Modifier.fillMaxSize()
+                                        )
+                                    }
+                                    Text(
+                                        text = conversation.title.ifBlank { "未命名对话" },
+                                        style = MuranTypography.bodyMedium.copy(fontSize = 14.sp),
+                                        color = TextPrimary,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                }
+                            }
+                        }
+                        is ConversationListItem.DateHeader -> {
+                            Text(
+                                text = item.label,
+                                style = MuranTypography.bodySmall.copy(fontSize = 12.sp, color = TextTertiary),
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                            )
+                        }
+                        else -> {}
+                    }
                 }
             }
-
-            DrawerActions(
-                navController = navController,
-                drawerItemAlpha = settings.displaySetting.drawerItemAlpha,
-            )
-
-            FolderBar(
-                folders = folders,
-                selectedFolderId = selectedFolderId,
-                onSelect = { drawerVm.selectFolder(it) },
-                onCreate = { showCreateFolderDialog = true },
-                onRename = { folderToRename = it },
-                onDelete = { folderToDelete = it },
-            )
-
-            ConversationList(
-                current = current,
-                conversations = conversations,
-                conversationJobs = conversationJobs.keys,
-                listState = conversationListState,
-                drawerItemAlpha = settings.displaySetting.drawerItemAlpha,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f),
-                onClick = {
-                    navigateToChatPage(navController, it.id)
-                },
-                onRegenerateTitle = {
-                    vm.generateTitle(it, true)
-                },
-                onDelete = {
-                    vm.deleteConversation(it)
-                    // Refresh the conversation list to immediately remove the deleted item
-                    // This fixes the issue where deleted conversations sometimes remain visible
-                    // until manually clicked (issue #747)
-                    conversations.refresh()
-                    if (it.id == current.id) {
-                        navigateToChatPage(navController)
-                    }
-                },
-                onPin = {
-                    vm.updatePinnedStatus(it)
-                },
-                onMoveToAssistant = {
-                    conversationToMove = it
-                    showMoveToAssistantSheet = true
-                },
-                onMoveToFolder = {
-                    conversationToMoveFolder = it
-                    showMoveToFolderSheet = true
-                }
-            )
 
             // 助手选择器
             AssistantPicker(
@@ -353,161 +245,9 @@ fun ChatDrawerContent(
                     navController.navigate(Screen.AssistantDetail(id = currentAssistantId.toString()))
                 }
             )
-
-            Row(
-                horizontalArrangement = Arrangement.SpaceAround,
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 8.dp)
-                    .alpha(settings.displaySetting.drawerItemAlpha)
-            ) {
-                DrawerAction(
-                    icon = {
-                        Icon(
-                            imageVector = HugeIcons.LookTop,
-                            contentDescription = stringResource(R.string.assistant_page_title)
-                        )
-                    },
-                    label = {
-                        Text(stringResource(R.string.assistant_page_title))
-                    },
-                    onClick = {
-                        navController.navigate(Screen.Assistant)
-                    },
-                )
-
-                Box {
-                    DrawerAction(
-                        icon = {
-                            Icon(HugeIcons.Sparkles, "Menu")
-                        },
-                        label = {
-                            Text(stringResource(R.string.menu))
-                        },
-                        onClick = {
-                            showMenuPopup = true
-                        },
-                    )
-                    DropdownMenu(
-                        expanded = showMenuPopup,
-                        onDismissRequest = { showMenuPopup = false }
-                    ) {
-                        DropdownMenuItem(
-                            text = { Text(stringResource(R.string.chat_page_menu_ai_translator)) },
-                            leadingIcon = { Icon(HugeIcons.LanguageCircle, null) },
-                            onClick = {
-                                showMenuPopup = false
-                                navController.navigate(Screen.Translator)
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = { Text(stringResource(R.string.chat_page_menu_image_generation)) },
-                            leadingIcon = { Icon(HugeIcons.Image02, null) },
-                            onClick = {
-                                showMenuPopup = false
-                                navController.navigate(Screen.ImageGen)
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = { Text("健康数据") },
-                            leadingIcon = { Icon(HugeIcons.Zap, null) },
-                            onClick = {
-                                showMenuPopup = false
-                                navController.navigate(Screen.Health)
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = { Text("Mini Apps") },
-                            leadingIcon = { Icon(HugeIcons.Rocket01, null) },
-                            onClick = {
-                                showMenuPopup = false
-                                navController.navigate(Screen.MiniAppManager)
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = { Text("记账") },
-                            leadingIcon = { Icon(HugeIcons.ChartColumn, null) },
-                            onClick = {
-                                showMenuPopup = false
-                                navController.navigate(Screen.Accounting)
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = { Text("天气") },
-                            leadingIcon = { Icon(HugeIcons.CloudServer, null) },
-                            onClick = {
-                                showMenuPopup = false
-                                navController.navigate(Screen.Weather)
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = { Text("QQ 日志") },
-                            leadingIcon = { Icon(HugeIcons.Message01, null) },
-                            onClick = {
-                                showMenuPopup = false
-                                navController.navigate(Screen.QQLogs)
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = { Text("插件市场") },
-                            leadingIcon = { Icon(HugeIcons.AppStore, null) },
-                            onClick = {
-                                showMenuPopup = false
-                                navController.navigate(Screen.PluginMarket)
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = { Text("考公刷题") },
-                            leadingIcon = { Icon(HugeIcons.BookOpen01, null) },
-                            onClick = {
-                                showMenuPopup = false
-                                navController.navigate(Screen.ExamPrep)
-                            }
-                        )
-                    }
-                }
-
-                DrawerAction(
-                    icon = {
-                        Icon(HugeIcons.InLove, stringResource(R.string.favorite_page_title))
-                    },
-                    label = {
-                        Text(stringResource(R.string.favorite_page_title))
-                    },
-                    onClick = {
-                        navController.navigate(Screen.Favorite)
-                    },
-                )
-
-                DrawerAction(
-                    icon = {
-                        Icon(HugeIcons.ChartColumn, "统计数据")
-                    },
-                    label = {
-                        Text("统计数据")
-                    },
-                    onClick = {
-                        navController.navigate(Screen.Stats)
-                    },
-                )
-
-                Spacer(Modifier.weight(1f))
-
-                DrawerAction(
-                    icon = {
-                        Icon(HugeIcons.Settings03, null)
-                    },
-                    label = { Text(stringResource(R.string.settings)) },
-                    onClick = {
-                        navController.navigate(Screen.Setting)
-                    },
-                )
-            }
-        }
         }
     }
-
+}
     // 昵称编辑对话框
     nicknameEditState.EditStateContent { nickname, onUpdate ->
         AlertDialog(
