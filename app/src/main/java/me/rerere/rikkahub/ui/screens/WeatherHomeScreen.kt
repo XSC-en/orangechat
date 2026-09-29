@@ -98,102 +98,88 @@ fun WeatherHomeScreen(
             .background(BackgroundGradient)
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
-            // 1. 顶部栏（含与你相伴第 N 天）
+            // 1. 顶部栏
             CompanionHeader(
                 daysCount = companionDays,
                 onAddClick = onNewChat,
                 onMenuClick = onOpenDrawer
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                contentPadding = PaddingValues(bottom = 24.dp)
+                verticalArrangement = Arrangement.spacedBy(14.dp),
+                contentPadding = PaddingValues(horizontal = 20.dp, bottom = 24.dp)
             ) {
-                // 2. 直达天气陪伴 Card
+                // 2. 天气陪伴 Card
                 item {
                     WeatherCompanionCard(
                         location = "重庆",
                         weatherState = weather?.description ?: "暮色加载中…",
                         temperature = weather?.let { "${it.temp.toInt()}°C" } ?: "--",
                         whisperText = weather?.let { "${it.icon} 湿度 ${it.humidity}% · 风速 ${it.windSpeed} m/s" }
-                            ?: "\"夜幕降临时，适合把积攒了一天的思绪交给我。\""
+                            ?: ""夜幕降临时，适合把积攒了一天的思绪交给我。""
                     )
                 }
 
-                // 3. 玻璃态搜索框（可点击跳转搜索）
+                // 3. 工具网格（2 列）
                 item {
-                    GlassCard(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 20.dp)
-                            .height(48.dp),
-                        cornerRadius = 16.dp
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .clickable { navController.navigate(Screen.MessageSearch) }
-                                .padding(horizontal = 16.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            androidx.compose.material3.Icon(
-                                imageVector = Lucide.Search,
-                                contentDescription = "Search",
-                                tint = TextTertiary
-                            )
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Text(
-                                text = "寻找 AI 助手或历史沉淀...",
-                                style = MuranTypography.bodyMedium.copy(color = TextDisabled)
-                            )
+                    val tools = listOf(
+                        Triple("新对话", Lucide.MessageCircle, { onNewChat() }),
+                        Triple("助手", Lucide.Bot, { navController.navigate(Screen.Assistant) }),
+                        Triple("翻译", Lucide.Languages, { navController.navigate(Screen.Translator) }),
+                        Triple("图片", Lucide.Image, { navController.navigate(Screen.ImageGen) }),
+                        Triple("记账", Lucide.Wallet, { navController.navigate(Screen.Accounting) }),
+                        Triple("天气", Lucide.Cloud, { navController.navigate(Screen.Weather) }),
+                        Triple("考公", Lucide.BookOpen, { navController.navigate(Screen.ExamPrep) }),
+                        Triple("插件", Lucide.Puzzle, { navController.navigate(Screen.PluginMarket) }),
+                        Triple("统计", Lucide.BarChart3, { navController.navigate(Screen.Stats) }),
+                        Triple("设置", Lucide.Settings, { navController.navigate(Screen.Setting) }),
+                    )
+                    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                        for (i in tools.indices step 2) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(10.dp)
+                            ) {
+                                ToolCard(
+                                    title = tools[i].first,
+                                    icon = tools[i].second,
+                                    onClick = tools[i].third,
+                                    modifier = Modifier.weight(1f)
+                                )
+                                if (i + 1 < tools.size) {
+                                    ToolCard(
+                                        title = tools[i + 1].first,
+                                        icon = tools[i + 1].second,
+                                        onClick = tools[i + 1].third,
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                }
+                            }
                         }
                     }
                 }
 
-                // 4. 最近的 AI 陪伴者列表
+                // 4. 最近对话（小卡片）
                 item {
                     Text(
-                        text = "私人空间",
+                        text = "最近对话",
                         style = MuranTypography.titleLarge.copy(
-                            fontSize = 16.sp,
+                            fontSize = 15.sp,
                             color = TextSecondary
                         ),
-                        modifier = Modifier.padding(horizontal = 20.dp, vertical = 4.dp)
+                        modifier = Modifier.padding(vertical = 4.dp)
                     )
                 }
-
                 if (recentConversations.isEmpty()) {
                     item {
-                        GlassCard(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 20.dp),
-                            cornerRadius = 20.dp
-                        ) {
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(24.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                Text(
-                                    text = "还没有对话",
-                                    style = MuranTypography.titleLarge.copy(fontSize = 15.sp),
-                                    color = TextSecondary
-                                )
-                                Spacer(modifier = Modifier.height(8.dp))
-                                Text(
-                                    text = "点击右上角 + 开始第一次对话",
-                                    style = MuranTypography.bodyMedium.copy(
-                                        color = TextTertiary,
-                                        fontSize = 13.sp
-                                    )
-                                )
-                            }
-                        }
+                        Text(
+                            text = "还没有对话，点击「新对话」开始",
+                            style = MuranTypography.bodyMedium.copy(color = TextTertiary, fontSize = 13.sp),
+                            modifier = Modifier.padding(vertical = 8.dp)
+                        )
                     }
                 } else {
                     items(recentConversations) { conversation ->
@@ -201,50 +187,77 @@ fun WeatherHomeScreen(
                         GlassCard(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(horizontal = 20.dp)
                                 .clickable {
                                     navController.navigate(
                                         Screen.Chat(id = conversation.id.toString())
                                     )
                                 },
-                            cornerRadius = 20.dp
+                            cornerRadius = 16.dp
                         ) {
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(16.dp),
+                                    .padding(12.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                GlowAvatar(
-                                    size = 44.dp,
-                                    modifier = Modifier.padding(3.dp)
-                                ) {
+                                GlowAvatar(size = 36.dp, modifier = Modifier.padding(2.dp)) {
                                     UIAvatar(
                                         name = assistant?.name ?: "AI",
                                         value = assistant?.avatar ?: Avatar.Dummy,
                                         modifier = Modifier.fillMaxSize()
                                     )
                                 }
-                                Spacer(modifier = Modifier.width(14.dp))
+                                Spacer(modifier = Modifier.width(10.dp))
                                 Column(modifier = Modifier.weight(1f)) {
                                     Text(
                                         text = conversation.title.ifBlank { "未命名对话" },
-                                        style = MuranTypography.titleLarge.copy(fontSize = 15.sp)
-                                    )
-                                    Spacer(modifier = Modifier.height(2.dp))
-                                    Text(
-                                        text = "点击继续对话...",
-                                        style = MuranTypography.bodyMedium.copy(
-                                            color = TextTertiary,
-                                            fontSize = 13.sp
-                                        )
+                                        style = MuranTypography.titleLarge.copy(fontSize = 14.sp)
                                     )
                                 }
+                                Icon(
+                                    imageVector = Lucide.ChevronRight,
+                                    contentDescription = null,
+                                    tint = TextTertiary,
+                                    modifier = Modifier.size(18.dp)
+                                )
                             }
                         }
                     }
                 }
             }
+        }
+    }
+}
+@Composable
+private fun ToolCard(
+    title: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    GlassCard(
+        modifier = modifier,
+        cornerRadius = 18.dp,
+        onClick = onClick
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 18.dp, horizontal = 12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = title,
+                tint = Color(0xFFB07D4F),
+                modifier = Modifier.size(26.dp)
+            )
+            Text(
+                text = title,
+                style = MuranTypography.bodyMedium.copy(fontSize = 12.sp),
+                color = Color(0xFF5A4C3E)
+            )
         }
     }
 }
