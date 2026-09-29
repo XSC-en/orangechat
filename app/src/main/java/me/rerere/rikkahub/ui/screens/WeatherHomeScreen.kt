@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -171,7 +172,7 @@ fun WeatherHomeScreen(
                     modifier = Modifier
                         .fillMaxSize()
                         .offset { androidx.compose.ui.unit.IntOffset(page1X.toInt(), 0) }
-                        .padding(horizontal = 20.dp, bottom = 24.dp),
+                        .padding(start = 20.dp, end = 20.dp, bottom = 24.dp),
                     verticalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
                     item {
@@ -257,7 +258,7 @@ fun WeatherHomeScreen(
                     modifier = Modifier
                         .fillMaxSize()
                         .offset { androidx.compose.ui.unit.IntOffset(page2X.toInt(), 0) }
-                        .padding(horizontal = 20.dp, bottom = 24.dp),
+                        .padding(start = 20.dp, end = 20.dp, bottom = 24.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     item {
