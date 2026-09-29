@@ -425,13 +425,6 @@ private fun MessagePartsBlock(
                                                         shape = if (LocalSettings.current.themeId == MuranVisuals.THEME_ID) RoundedCornerShape(
                                                             topStart = displaySettings.bubbleCornerRadius.dp,
                                                             topEnd = displaySettings.bubbleCornerRadius.dp,
-                                                            bottomEnd = displaySettings.bubbleCornerRadius.dp,
-                                                            bottomStart = displaySettings.bubbleCornerRadius.dp
-                                                        ),
-                                                        border = if (LocalSettings.current.themeId == MuranVisuals.THEME_ID) MuranVisuals.userBubbleBorder else null,
-                                                        borderWidth = 1.dp,
-                                                            topStart = displaySettings.bubbleCornerRadius.dp,
-                                                            topEnd = displaySettings.bubbleCornerRadius.dp,
                                                             bottomStart = displaySettings.bubbleCornerRadius.dp,
                                                             bottomEnd = 4.dp
                                                         ) else null,
@@ -460,12 +453,6 @@ private fun MessagePartsBlock(
                                             onClick = { onUserMessageClick?.invoke() },
                                             shape = if (LocalSettings.current.themeId == MuranVisuals.THEME_ID) RoundedCornerShape(
                                                 topStart = displaySettings.bubbleCornerRadius.dp,
-                                                topEnd = 4.dp,
-                                                bottomEnd = displaySettings.bubbleCornerRadius.dp,
-                                                bottomStart = displaySettings.bubbleCornerRadius.dp
-                                            ),
-                                            border = if (LocalSettings.current.themeId == MuranVisuals.THEME_ID) MuranVisuals.userBubbleBorder else null,
-                                            borderWidth = 1.dp,
                                                 topEnd = displaySettings.bubbleCornerRadius.dp,
                                                 bottomStart = displaySettings.bubbleCornerRadius.dp,
                                                 bottomEnd = 4.dp
@@ -503,11 +490,6 @@ private fun MessagePartsBlock(
                                                         shape = if (LocalSettings.current.themeId == MuranVisuals.THEME_ID) RoundedCornerShape(
                                                             topStart = 4.dp,
                                                             topEnd = displaySettings.bubbleCornerRadius.dp,
-                                                            bottomEnd = displaySettings.bubbleCornerRadius.dp,
-                                                            bottomStart = 4.dp
-                                                        ),
-                                                        border = if (LocalSettings.current.themeId == MuranVisuals.THEME_ID) MuranVisuals.aiBubbleBorder else null,
-                                                        borderWidth = 1.dp,
                                                             bottomStart = displaySettings.bubbleCornerRadius.dp,
                                                             bottomEnd = displaySettings.bubbleCornerRadius.dp
                                                         ) else null,
@@ -548,11 +530,6 @@ private fun MessagePartsBlock(
                                             shape = if (LocalSettings.current.themeId == MuranVisuals.THEME_ID) RoundedCornerShape(
                                                 topStart = 4.dp,
                                                 topEnd = displaySettings.bubbleCornerRadius.dp,
-                                                bottomEnd = displaySettings.bubbleCornerRadius.dp,
-                                                bottomStart = 4.dp
-                                            ),
-                                            border = if (LocalSettings.current.themeId == MuranVisuals.THEME_ID) MuranVisuals.aiBubbleBorder else null,
-                                            borderWidth = 1.dp,
                                                 bottomStart = displaySettings.bubbleCornerRadius.dp,
                                                 bottomEnd = displaySettings.bubbleCornerRadius.dp
                                             ) else null,
@@ -785,7 +762,7 @@ private fun BubbleSurface(
     brush: Brush? = null,
     contentColor: Color? = null,
     shape: Shape? = null,
-    border: androidx.compose.ui.graphics.Brush? = null,
+    border: Brush? = null,
     borderWidth: Dp = 0.dp,
     content: @Composable () -> Unit,
 ) {
@@ -814,12 +791,21 @@ private fun BubbleSurface(
         }
     } else if (brush != null) {
         val bubbleShape = shape ?: RoundedCornerShape(cornerRadius)
+        val isMuran = LocalSettings.current.themeId == MuranVisuals.THEME_ID
+        val effectiveBorder = if (isMuran && border == null) {
+            when {
+                brush == MuranVisuals.userBubble -> MuranVisuals.userBubbleBorder
+                brush == MuranVisuals.aiBubble -> MuranVisuals.aiBubbleBorder
+                else -> null
+            }
+        } else border
+        val effectiveBorderWidth = if (isMuran && border == null) 1.dp else borderWidth
         Box(
             modifier = Modifier
                 .animateContentSize()
                 .clip(bubbleShape)
                 .background(brush = brush, shape = bubbleShape)
-                .then(if (border != null && borderWidth > 0.dp) Modifier.border(borderWidth, border, bubbleShape) else Modifier)
+                .then(if (effectiveBorder != null && effectiveBorderWidth > 0.dp) Modifier.border(effectiveBorderWidth, effectiveBorder, bubbleShape) else Modifier)
                 .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier)
         ) {
             CompositionLocalProvider(

@@ -119,7 +119,7 @@ fun WeatherHomeScreen(
                         weatherState = weather?.description ?: "暮色加载中…",
                         temperature = weather?.let { "${it.temp.toInt()}°C" } ?: "--",
                         whisperText = weather?.let { "${it.icon} 湿度 ${it.humidity}% · 风速 ${it.windSpeed} m/s" }
-                            ?: ""夜幕降临时，适合把积攒了一天的思绪交给我。""
+                            ?: "夜幕降临时，适合把积攒了一天的思绪交给我。"
                     )
                 }
 
