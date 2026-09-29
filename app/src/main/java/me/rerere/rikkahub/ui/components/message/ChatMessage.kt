@@ -785,7 +785,7 @@ private fun BubbleSurface(
                 Box(
                     modifier = Modifier
                         .matchParentSize()
-                        .background(color.copy(alpha = bubbleAlpha))
+                        .background((contentColor ?: Color.Black).copy(alpha = bubbleAlpha * 0.3f))
                 )
             }
             Column(modifier = Modifier.padding(8.dp)) { content() }
@@ -812,6 +812,12 @@ private fun BubbleSurface(
             CompositionLocalProvider(
                 LocalContentColor provides (contentColor ?: LocalContentColor.current)
             ) {
+                // 应用气泡透明度（通过叠加半透明层）
+                Box(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .background(Color.Black.copy(alpha = 1f - bubbleAlpha))
+                )
                 Column(modifier = Modifier.padding(8.dp)) { content() }
             }
         }
