@@ -50,7 +50,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import me.rerere.rikkahub.ui.theme.MuranVisuals
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.platform.statusBarsPadding
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.font.FontWeight
