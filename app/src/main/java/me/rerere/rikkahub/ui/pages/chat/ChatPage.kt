@@ -498,7 +498,6 @@ private fun ChatPageContent(
 }
 
 @Composable
-@Composable
 private fun TopBar(
     settings: Settings,
     conversation: Conversation,
