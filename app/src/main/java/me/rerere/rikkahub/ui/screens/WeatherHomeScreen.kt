@@ -29,7 +29,7 @@ import me.rerere.hugeicons.stroke.CloudServer
 import me.rerere.hugeicons.stroke.BookOpen01
 import me.rerere.hugeicons.stroke.AppStore
 import me.rerere.hugeicons.stroke.Settings03
-import me.rerere.hugeicons.stroke.ChevronRight
+import me.rerere.hugeicons.stroke.ArrowRight01
 import me.rerere.rikkahub.Screen
 import me.rerere.rikkahub.data.datastore.Settings
 import me.rerere.rikkahub.data.datastore.getAssistantById
@@ -226,7 +226,7 @@ fun WeatherHomeScreen(
                                     )
                                 }
                                 Icon(
-                                    imageVector = HugeIcons.ChevronRight,
+                                    imageVector = HugeIcons.ArrowRight01,
                                     contentDescription = null,
                                     tint = TextTertiary,
                                     modifier = Modifier.size(18.dp)
