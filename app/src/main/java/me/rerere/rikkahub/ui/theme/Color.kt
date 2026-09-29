@@ -65,10 +65,6 @@ val UserBubbleGradient = Brush.horizontalGradient(
     colors = listOf(WarmGoldMain, Color(0xFFC4A265))
 )
 
-// ===== Extend Colors =====
-
-data class ExtendColors(
-    val red1: Color,
 data class ExtendColors(
     val red1: Color,
     val red2: Color,
