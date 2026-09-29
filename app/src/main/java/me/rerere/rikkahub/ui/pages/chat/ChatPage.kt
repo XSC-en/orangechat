@@ -518,6 +518,7 @@ private fun TopBar(
         onUpdateTitle(it)
     }
     val isMuran = settings.themeId == MuranVisuals.THEME_ID
+    val context = LocalContext.current
 
     // 手帐风纸张顶栏：不用 Material TopAppBar，自定义暖色圆角栏
     Surface(
@@ -547,7 +548,7 @@ private fun TopBar(
                     if (conversation.messageNodes.isNotEmpty()) {
                         titleState.open(conversation.title)
                     } else {
-                        toaster.show(LocalContext.current.getString(R.string.chat_page_edit_title_warning), type = ToastType.Warning)
+                        toaster.show(context.getString(R.string.chat_page_edit_title_warning), type = ToastType.Warning)
                     }
                 },
                 color = if (isMuran) Color(0xFFF0E8DC) else Color.Transparent,
