@@ -8,6 +8,7 @@ package me.rerere.rikkahub.ui.pages.chat
 
 import android.net.Uri
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -51,6 +52,7 @@ import me.rerere.rikkahub.ui.theme.MuranVisuals
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -496,6 +498,7 @@ private fun ChatPageContent(
 }
 
 @Composable
+@Composable
 private fun TopBar(
     settings: Settings,
     conversation: Conversation,
@@ -512,124 +515,108 @@ private fun TopBar(
     val titleState = useEditState<String> {
         onUpdateTitle(it)
     }
+    val isMuran = settings.themeId == MuranVisuals.THEME_ID
 
-    TopAppBar(
-        colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
-        navigationIcon = {
+    // 手帐风纸张顶栏：不用 Material TopAppBar，自定义暖色圆角栏
+    Surface(
+        color = if (isMuran) Color(0xFFFAF6F0).copy(alpha = 0.9f) else Color.Transparent,
+        shadowElevation = 0.dp,
+        tonalElevation = 0.dp
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 4.dp, vertical = 6.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // 返回/菜单
             if (!bigScreen) {
                 IconButton(
-                    onClick = {
-                        scope.launch { drawerState.open() }
-                    }
+                    onClick = { scope.launch { drawerState.open() } }
                 ) {
-                    Icon(HugeIcons.Menu03, "Messages")
+                    Icon(HugeIcons.Menu03, "Messages", tint = if (isMuran) Color(0xFF5A4C3E) else MaterialTheme.colorScheme.onSurface)
                 }
             }
-        },
-        title = {
-            val editTitleWarning = stringResource(R.string.chat_page_edit_title_warning)
+
+            // 标题区（可点击编辑）
             Surface(
                 onClick = {
                     if (conversation.messageNodes.isNotEmpty()) {
                         titleState.open(conversation.title)
                     } else {
-                        toaster.show(editTitleWarning, type = ToastType.Warning)
+                        toaster.show(stringResource(R.string.chat_page_edit_title_warning), type = ToastType.Warning)
                     }
                 },
-                color = Color.Transparent,
+                color = if (isMuran) Color(0xFFF0E8DC) else Color.Transparent,
+                shape = RoundedCornerShape(16.dp),
+                modifier = Modifier.weight(1f)
             ) {
-                Column {
+                Row(
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     val assistant = settings.getCurrentAssistant()
-                    val model = settings.getCurrentChatModel()
-                    val provider = model?.findProvider(providers = settings.providers, checkOverwrite = false)
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        UIAvatar(
-                            name = assistant.name.ifBlank { stringResource(R.string.assistant_page_default_assistant) },
-                            value = assistant.avatar,
-                            modifier = Modifier.size(36.dp)
-                        )
-                        Spacer(Modifier.width(10.dp))
+                    UIAvatar(
+                        name = assistant.name.ifBlank { stringResource(R.string.assistant_page_default_assistant) },
+                        value = assistant.avatar,
+                        modifier = Modifier.size(34.dp)
+                    )
+                    Spacer(Modifier.width(10.dp))
+                    Column {
                         Text(
                             text = conversation.title.ifBlank { stringResource(R.string.chat_page_new_chat) },
                             maxLines = 1,
-                            style = MaterialTheme.typography.bodyMedium,
-                            overflow = TextOverflow.Ellipsis,
+                            style = MaterialTheme.typography.bodyMedium.copy(
+                                color = if (isMuran) Color(0xFF2C2218) else MaterialTheme.colorScheme.onSurface,
+                                fontWeight = FontWeight.Medium
+                            ),
+                            overflow = TextOverflow.Ellipsis
                         )
-                    }
-                    if (model != null && provider != null) {
-                        Text(
-                            text = "${assistant.name.ifBlank { stringResource(R.string.assistant_page_default_assistant) }} / ${model.displayName} (${provider.name})",
-                            overflow = TextOverflow.Ellipsis,
-                            maxLines = 1,
-                            color = LocalContentColor.current.copy(0.65f),
-                            style = MaterialTheme.typography.labelSmall.copy(
-                                fontSize = 8.sp,
+                        val model = settings.getCurrentChatModel()
+                        val provider = model?.findProvider(providers = settings.providers, checkOverwrite = false)
+                        if (model != null && provider != null) {
+                            Text(
+                                text = "${assistant.name.ifBlank { stringResource(R.string.assistant_page_default_assistant) }} / ${model.displayName}",
+                                maxLines = 1,
+                                color = if (isMuran) Color(0xFF8C7E6E) else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.65f),
+                                style = MaterialTheme.typography.labelSmall.copy(fontSize = 9.sp)
                             )
-                        )
+                        }
                     }
                 }
             }
-        },
-        actions = {
-            IconButton(
-                onClick = {
-                    onVoiceCall()
-                }
-            ) {
-                Icon(HugeIcons.Voice, "Voice Call")
-            }
 
-            IconButton(
-                onClick = {
-                    onClickMenu()
-                }
-            ) {
-                Icon(if (previewMode) HugeIcons.Cancel01 else HugeIcons.LeftToRightListBullet, "Chat Options")
+            // 操作按钮
+            IconButton(onClick = { onVoiceCall() }) {
+                Icon(HugeIcons.Voice, "Voice", tint = if (isMuran) Color(0xFF5A4C3E) else MaterialTheme.colorScheme.onSurface)
             }
+            IconButton(onClick = { onClickMenu() }) {
+                Icon(
+                    if (previewMode) HugeIcons.Cancel01 else HugeIcons.LeftToRightListBullet,
+                    "Chat Options",
+                    tint = if (isMuran) Color(0xFF5A4C3E) else MaterialTheme.colorScheme.onSurface
+                )
+            }
+            IconButton(onClick = { onNewChat() }) {
+                Icon(HugeIcons.MessageAdd01, "New Message", tint = if (isMuran) Color(0xFF5A4C3E) else MaterialTheme.colorScheme.onSurface)
+            }
+        }
+    }
 
-            IconButton(
-                onClick = {
-                    onNewChat()
-                }
-            ) {
-                Icon(HugeIcons.MessageAdd01, "New Message")
-            }
-        },
-    )
     titleState.EditStateContent { title, onUpdate ->
         AlertDialog(
-            onDismissRequest = {
-                titleState.dismiss()
-            },
-            title = {
-                Text(stringResource(R.string.chat_page_edit_title))
-            },
+            onDismissRequest = { titleState.dismiss() },
+            title = { Text(stringResource(R.string.chat_page_edit_title)) },
             text = {
                 OutlinedTextField(
                     value = title,
                     onValueChange = onUpdate,
                     modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
+                    singleLine = true
                 )
             },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        titleState.confirm()
-                    }
-                ) {
-                    Text(stringResource(R.string.chat_page_save))
-                }
-            },
-            dismissButton = {
-                TextButton(
-                    onClick = {
-                        titleState.dismiss()
-                    }
-                ) {
-                    Text(stringResource(R.string.chat_page_cancel))
-                }
-            }
+            confirmButton = { TextButton(onClick = { titleState.confirm() }) { Text(stringResource(R.string.chat_page_save)) } },
+            dismissButton = { TextButton(onClick = { titleState.dismiss() }) { Text(stringResource(R.string.chat_page_cancel)) } }
         )
     }
 }

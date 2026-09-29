@@ -181,7 +181,8 @@ fun ChatDrawerContent(
     var showMenuPopup by remember { mutableStateOf(false) }
 
     ModalDrawerSheet(
-        modifier = Modifier.width(300.dp)
+        modifier = Modifier.width(300.dp),
+        drawerContainerColor = androidx.compose.ui.graphics.Color(0xFFF5EFE6)
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             // 侧边栏背景图（最底层）
@@ -885,21 +886,22 @@ private fun DrawerAction(
     Surface(
         onClick = onClick,
         modifier = modifier,
-        color = MaterialTheme.colorScheme.primaryContainer,
-        shape = CircleShape,
-        contentColor = MaterialTheme.colorScheme.onSurface,
+        color = if (LocalSettings.current.themeId == "muran") Color(0xFFF0E8DC)
+            else MaterialTheme.colorScheme.primaryContainer,
+        shape = if (LocalSettings.current.themeId == "muran") RoundedCornerShape(18.dp)
+            else CircleShape,
+        contentColor = if (LocalSettings.current.themeId == "muran") Color(0xFF5A4C3E)
+            else MaterialTheme.colorScheme.onSurface,
     ) {
-        Tooltip(
-            tooltip = {
-                label()
-            }
+        Row(
+            modifier = Modifier
+                .padding(horizontal = 12.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
-            Box(
-                modifier = Modifier
-                    .padding(10.dp)
-                    .size(20.dp),
-            ) {
-                icon()
+            Box(modifier = Modifier.size(20.dp)) { icon() }
+            if (LocalSettings.current.themeId == "muran") {
+                label()
             }
         }
     }
