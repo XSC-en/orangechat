@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -46,6 +47,7 @@ import me.rerere.hugeicons.stroke.Image02
 import me.rerere.hugeicons.stroke.LanguageCircle
 import me.rerere.hugeicons.stroke.Message01
 import me.rerere.hugeicons.stroke.Settings03
+import me.rerere.hugeicons.stroke.AppStore
 import me.rerere.hugeicons.stroke.Sparkles
 import me.rerere.rikkahub.Screen
 import me.rerere.rikkahub.data.datastore.Settings
@@ -356,7 +358,7 @@ private fun ToolCategoryCard(
                             .size(72.dp)
                             .clip(androidx.compose.foundation.shape.CircleShape)
                             .background(GlassSurface)
-                            .clickable(item.onClick),
+                            .clickable(onClick = item.onClick),
                         contentAlignment = Alignment.Center
                     ) {
                         Column(
